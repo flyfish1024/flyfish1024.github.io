@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html>
+    <!-- title -->
+
+
+
+
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" >
+    <meta name="description" content="爱生活，爱java">
+    <title>Angular ui-tree 使用心得 · flyFish</title>
+    <style type="text/css">
+    @font-face {
+        font-family: 'Oswald-Regular';
+        src: url("/font/Oswald-Regular.ttf");
+    }
+
+    body {
+        margin: 0;
+    }
+
+    header,
+    footer,
+    .back-top,
+    .sidebar,
+    .container,
+    .site-intro-meta,
+    .toc-wrapper {
+        display: none;
+    }
+
+    .site-intro {
+        position: relative;
+        z-index: 3;
+        width: 100%;
+        /* height: 50vh; */
+        overflow: hidden;
+    }
+
+    .site-intro-placeholder {
+        position: absolute;
+        z-index: -2;
+        top: 0;
+        left: 0;
+        width: calc(100% + 300px);
+        height: 100%;
+        background: repeating-linear-gradient(-45deg, #444 0, #444 80px, #333 80px, #333 160px);
+        background-position: center center;
+        transform: translate3d(-226px, 0, 0);
+        animation: gradient-move 2.5s ease-out 0s 1;
+    }
+
+    @keyframes gradient-move {
+        0% {
+            transform: translate3d(-226px, 0, 0);
+        }
+        100% {
+            transform: translate3d(0, 0, 0);
+        }
+    }
+
+</style>
+
+    <link rel="preload" href= /css/style.css?v=20180317 as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="stylesheet" type="text/css" href= /css/mobile.css?v=20180317 media="(max-width: 980px)"/>
+    
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        
+    <link rel="icon" href= /assets/favicon.ico>
+    <script>
+        (function (w) {
+            "use strict";
+            // rel=preload support test
+            if (!w.loadCSS) {
+                w.loadCSS = function () { };
+            }
+            // define on the loadCSS obj
+            var rp = loadCSS.relpreload = {};
+            // rel=preload feature support test
+            // runs once and returns a function for compat purposes
+            rp.support = (function () {
+                var ret;
+                try {
+                    ret = w.document.createElement("link").relList.supports("preload");
+                } catch (e) {
+                    ret = false;
+                }
+                return function () {
+                    return ret;
+                };
+            })();
+
+            // if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+            // then change that media back to its intended value on load
+            rp.bindMediaToggle = function (link) {
+                // remember existing media attr for ultimate state, or default to 'all'
+                var finalMedia = link.media || "all";
+
+                function enableStylesheet() {
+                    link.media = finalMedia;
+                }
+
+                // bind load handlers to enable media
+                if (link.addEventListener) {
+                    link.addEventListener("load", enableStylesheet);
+                } else if (link.attachEvent) {
+                    link.attachEvent("onload", enableStylesheet);
+                }
+
+                // Set rel and non-applicable media type to start an async request
+                // note: timeout allows this to happen async to let rendering continue in IE
+                setTimeout(function () {
+                    link.rel = "stylesheet";
+                    link.media = "only x";
+                });
+                // also enable media after 3 seconds,
+                // which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+                setTimeout(enableStylesheet, 3000);
+            };
+
+            // loop through link elements in DOM
+            rp.poly = function () {
+                // double check this to prevent external calls from running
+                if (rp.support()) {
+                    return;
+                }
+                var links = w.document.getElementsByTagName("link");
+                for (var i = 0; i < links.length; i++) {
+                    var link = links[i];
+                    // qualify links to those with rel=preload and as=style attrs
+                    if (link.rel === "preload" && link.getAttribute("as") === "style" && !link.getAttribute("data-loadcss")) {
+                        // prevent rerunning on link
+                        link.setAttribute("data-loadcss", true);
+                        // bind listeners to toggle media back
+                        rp.bindMediaToggle(link);
+                    }
+                }
+            };
+
+            // if unsupported, run the polyfill
+            if (!rp.support()) {
+                // run once at least
+                rp.poly();
+
+                // rerun poly on an interval until onload
+                var run = w.setInterval(rp.poly, 500);
+                if (w.addEventListener) {
+                    w.addEventListener("load", function () {
+                        rp.poly();
+                        w.clearInterval(run);
+                    });
+                } else if (w.attachEvent) {
+                    w.attachEvent("onload", function () {
+                        rp.poly();
+                        w.clearInterval(run);
+                    });
+                }
+            }
+            // commonjs
+            if (typeof exports !== "undefined") {
+                exports.loadCSS = loadCSS;
+            }
+            else {
+                w.loadCSS = loadCSS;
+            }
+        }(typeof global !== "undefined" ? global : this));
+    </script>
+    <script src="//cdn.staticfile.org/jquery/3.2.1/jquery.min.js" defer></script>
+    <script src="/scripts/main.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js" defer></script>
+    <!-- 百度统计  -->
+    
+    <!-- 谷歌统计  -->
+    
+</head>
+
+    
+        <body class="post-body">
+    
+    
+<header class="header">
+
+    <div class="read-progress"></div>
+    <div class="header-sidebar-menu">&#xe775;</div>
+    <!-- post页的toggle banner  -->
+    
+    <div class="banner">
+            <div class="blog-title">
+                <a href="/" >flyFish&#39;s recorder.</a>
+            </div>
+            <div class="post-title">
+                <a href="#" class="post-name">Angular ui-tree 使用心得</a>
+            </div>
+    </div>
+    
+    <a class="home-link" href=/>flyFish's recorder.</a>
+</header>
+    <div class="wrapper">
+        <div class="site-intro" style=
+
+
+
+
+
+
+
+
+height:70vh;
+
+>
+    
+    <!-- 主页  -->
+    
+    
+    <!-- 404页  -->
+            
+    <div class="site-intro-img" style="background-image: url(/intro/ui_tree.jpg)"></div>
+    <div class="site-intro-placeholder"></div>
+    <div class="site-intro-meta">
+        <!-- 标题  -->
+        <h1 class="intro-title">
+            <!-- 主页  -->
+            
+            Angular ui-tree 使用心得
+            <!-- 404 -->
+            
+        </h1>
+        <!-- 副标题 -->
+        <p class="intro-subtitle">
+            <!-- 主页副标题  -->
+            
+            
+            <!-- 404 -->
+            
+        </p>
+        <!-- 文章页meta -->
+        
+            <!-- 文章页标签  -->
+            
+                <div class= post-intro-tags >
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "angular">angular</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "js">js</a>
+    
+</div>
+            
+            <div class="post-intro-meta">
+                <span class="post-intro-calander iconfont-archer">&#xe676;</span>
+                <span class="post-intro-time">2018/05/06</span>
+                
+                <span id="busuanzi_container_page_pv" class="busuanzi-pv">
+                    <span class="iconfont-archer">&#xe602;</span>
+                    <span id="busuanzi_value_page_pv"></span>
+                </span>
+                
+                <span class="shareWrapper">
+                    <span class="iconfont-archer shareIcon">&#xe71d;</span>
+                    <span class="shareText">Share</span>
+                    <ul class="shareList">
+                        <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                            <div class="share-qrcode"></div>
+                        </li>
+                        <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                        <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                        <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                        <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                    </ul>
+                </span>
+            </div>
+        
+    </div>
+</div>
+        <script>
+  // load webfont-loader async, and add callback function
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+  
+  // get user agent
+  var browser = {
+    versions: function () {
+      var u = window.navigator.userAgent;
+      return {
+        userAgent: u,
+        trident: u.indexOf('Trident') > -1, //IE内核
+        presto: u.indexOf('Presto') > -1, //opera内核
+        webKit: u.indexOf('AppleWebKit') > -1, //苹果、谷歌内核
+        gecko: u.indexOf('Gecko') > -1 && u.indexOf('KHTML') == -1, //火狐内核
+        mobile: !!u.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
+        ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
+        android: u.indexOf('Android') > -1 || u.indexOf('Linux') > -1, //android终端或者uc浏览器
+        iPhone: u.indexOf('iPhone') > -1 || u.indexOf('Mac') > -1, //是否为iPhone或者安卓QQ浏览器
+        iPad: u.indexOf('iPad') > -1, //是否为iPad
+        webApp: u.indexOf('Safari') == -1, //是否为web应用程序，没有头部与底部
+        weixin: u.indexOf('MicroMessenger') == -1, //是否为微信浏览器
+        uc: u.indexOf('UCBrowser') > -1 //是否为android下的UC浏览器
+      };
+    }()
+  }
+  console.log("userAgent:" + browser.versions.userAgent);
+
+  // callback
+  function fontLoaded() {
+    console.log('font loaded');
+    if (document.getElementsByClassName('site-intro-meta')) {
+      document.getElementsByClassName('intro-title')[0].classList.add('intro-fade-in');
+      document.getElementsByClassName('intro-subtitle')[0].classList.add('intro-fade-in');
+      var postIntroTags = document.getElementsByClassName('post-intro-tags')[0],
+        postIntroMeat = document.getElementsByClassName('post-intro-meta')[0];
+      if (postIntroTags) {
+        postIntroTags.classList.add('post-fade-in');
+      }
+      if (postIntroMeat) {
+        postIntroMeat.classList.add('post-fade-in');
+      }
+    }
+  }
+
+  // UC不支持跨域，所以直接显示
+  function asyncCb(){
+    if (browser.versions.uc) {
+      console.log("UCBrowser");
+      fontLoaded();
+    } else {
+      WebFont.load({
+        custom: {
+          families: ['Oswald-Regular']
+        },
+        loading: function () {  //所有字体开始加载
+          // console.log('loading');
+        },
+        active: function () {  //所有字体已渲染
+          fontLoaded();
+        },
+        inactive: function () { //字体预加载失败，无效字体或浏览器不支持加载
+          console.log('inactive: timeout');
+          fontLoaded();
+        },
+        timeout: 5000 // Set the timeout to two seconds
+      });
+    }
+  }
+
+  async("https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js", asyncCb)
+</script>        
+        <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
+        <div class="container container-unloaded">
+            <main class="main post-page">
+    <article class="article-entry">
+        <hr>
+<p><strong>总结分享下我关于这个插件的使用与体会，三个方面</strong></p>
+<ul>
+<li>插件作用</li>
+<li>使用流程<ul>
+<li>数据库表数据</li>
+<li>获取所有数据<ul>
+<li>数据处理</li>
+</ul>
+</li>
+<li>页面显示</li>
+<li>搭载checkbox<ul>
+<li>页面显示</li>
+<li>子父级联动</li>
+<li>回显</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>坑</li>
+</ul>
+<h2 id="插件作用"><a href="#插件作用" class="headerlink" title="插件作用"></a>插件作用</h2><p>具备所有tree插件的特点，显示分支形式的数据，可折叠，可修改，添加同级别，子级别数据。实际应用：例如 <em>组织机构树</em>，本篇我们将用此案例进行演示。</p>
+<p><strong>angular-ui-tree还有如下特点：</strong></p>
+<p>1.使用本地AngularJS范围数据绑定</p>
+<p>2.整个树都可以进行排序和移动项目</p>
+<p><em>官方demo截图</em><br><img src="../../../../assets/img/ui_tree_demo.png" alt="ui_tree_demo"></p>
+<p><em>数据源</em><br><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line">[</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">"id"</span>: <span class="number">1</span>,</span><br><span class="line">    <span class="attr">"title"</span>: <span class="string">"node1"</span>,</span><br><span class="line">    <span class="attr">"nodes"</span>: [</span><br><span class="line">      &#123;</span><br><span class="line">        <span class="attr">"id"</span>: <span class="number">11</span>,</span><br><span class="line">        <span class="attr">"title"</span>: <span class="string">"node1.1"</span>,</span><br><span class="line">        <span class="attr">"nodes"</span>: [</span><br><span class="line">          &#123;</span><br><span class="line">            <span class="attr">"id"</span>: <span class="number">111</span>,</span><br><span class="line">            <span class="attr">"title"</span>: <span class="string">"node1.1.1"</span>,</span><br><span class="line">            <span class="attr">"nodes"</span>: []</span><br><span class="line">          &#125;</span><br><span class="line">        ]</span><br><span class="line">      &#125;,</span><br><span class="line">      &#123;</span><br><span class="line">        <span class="attr">"id"</span>: <span class="number">12</span>,</span><br><span class="line">        <span class="attr">"title"</span>: <span class="string">"node1.2"</span>,</span><br><span class="line">        <span class="attr">"nodes"</span>: []</span><br><span class="line">      &#125;</span><br><span class="line">    ]</span><br><span class="line">  &#125;,</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">"id"</span>: <span class="number">2</span>,</span><br><span class="line">    <span class="attr">"title"</span>: <span class="string">"node2"</span>,</span><br><span class="line">    <span class="attr">"nodrop"</span>: <span class="literal">true</span>,</span><br><span class="line">    <span class="attr">"nodes"</span>: [</span><br><span class="line">      &#123;</span><br><span class="line">        <span class="attr">"id"</span>: <span class="number">21</span>,</span><br><span class="line">        <span class="attr">"title"</span>: <span class="string">"node2.1"</span>,</span><br><span class="line">        <span class="attr">"nodes"</span>: []</span><br><span class="line">      &#125;,</span><br><span class="line">      &#123;</span><br><span class="line">        <span class="attr">"id"</span>: <span class="number">22</span>,</span><br><span class="line">        <span class="attr">"title"</span>: <span class="string">"node2.2"</span>,</span><br><span class="line">        <span class="attr">"nodes"</span>: []</span><br><span class="line">      &#125;</span><br><span class="line">    ]</span><br><span class="line">  &#125;,</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">"id"</span>: <span class="number">3</span>,</span><br><span class="line">    <span class="attr">"title"</span>: <span class="string">"node3"</span>,</span><br><span class="line">    <span class="attr">"nodes"</span>: [</span><br><span class="line">      &#123;</span><br><span class="line">        <span class="attr">"id"</span>: <span class="number">31</span>,</span><br><span class="line">        <span class="attr">"title"</span>: <span class="string">"node3.1"</span>,</span><br><span class="line">        <span class="attr">"nodes"</span>: []</span><br><span class="line">      &#125;</span><br><span class="line">    ]</span><br><span class="line">  &#125;</span><br><span class="line">]</span><br></pre></td></tr></table></figure></p>
+<p><a href="http://angular-ui-tree.github.io/angular-ui-tree/#/basic-example" target="_blank" rel="noopener">ui-tree官方demo</a></p>
+<h2 id="使用流程"><a href="#使用流程" class="headerlink" title="使用流程"></a>使用流程</h2><p>本小节按照以下流程进行：</p>
+<ol>
+<li>数据库表结构</li>
+<li>获取所有数据<ul>
+<li>数据处理</li>
+</ul>
+</li>
+<li>页面显示</li>
+<li>搭载checkbox<ol>
+<li>页面显示</li>
+<li>子父级联动</li>
+<li>回显</li>
+</ol>
+</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">为了便于大家的学习与使用，我以一个完整的案例进行演示。大家可酌情选看适合自己的小小节。</span><br></pre></td></tr></table></figure>
+<h3 id="数据库表结构"><a href="#数据库表结构" class="headerlink" title="数据库表结构"></a>数据库表结构</h3><p>table_name :party_group</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">机构id</th>
+<th style="text-align:left">上级id</th>
+<th style="text-align:left">机构名称</th>
+<th style="text-align:left">级别</th>
+<th style="text-align:left">能否有下一级</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">nId</td>
+<td style="text-align:left">nPid</td>
+<td style="text-align:left">vcName</td>
+<td style="text-align:left">nLevel</td>
+<td style="text-align:left">bLeaf</td>
+</tr>
+<tr>
+<td style="text-align:left">1</td>
+<td style="text-align:left">0</td>
+<td style="text-align:left">万源实业集团党委</td>
+<td style="text-align:left">1</td>
+<td style="text-align:left">1</td>
+</tr>
+<tr>
+<td style="text-align:left">2</td>
+<td style="text-align:left">0</td>
+<td style="text-align:left">航天一院院党委</td>
+<td style="text-align:left">1</td>
+<td style="text-align:left">1</td>
+</tr>
+<tr>
+<td style="text-align:left">3</td>
+<td style="text-align:left">1</td>
+<td style="text-align:left">建筑公司党支部</td>
+<td style="text-align:left">2</td>
+<td style="text-align:left">1</td>
+</tr>
+<tr>
+<td style="text-align:left">4</td>
+<td style="text-align:left">3</td>
+<td style="text-align:left">建筑第一党小组</td>
+<td style="text-align:left">3</td>
+<td style="text-align:left">0</td>
+</tr>
+<tr>
+<td style="text-align:left">5</td>
+<td style="text-align:left">3</td>
+<td style="text-align:left">建筑第二党小组</td>
+<td style="text-align:left">3</td>
+<td style="text-align:left">0</td>
+</tr>
+<tr>
+<td style="text-align:left">6</td>
+<td style="text-align:left">3</td>
+<td style="text-align:left">建筑第三党小组</td>
+<td style="text-align:left">3</td>
+<td style="text-align:left">0</td>
+</tr>
+<tr>
+<td style="text-align:left">7</td>
+<td style="text-align:left">3</td>
+<td style="text-align:left">建筑第四党小组</td>
+<td style="text-align:left">3</td>
+<td style="text-align:left">0</td>
+</tr>
+</tbody>
+</table>
+<h3 id="获取所有数据"><a href="#获取所有数据" class="headerlink" title="获取所有数据"></a>获取所有数据</h3><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select * <span class="keyword">from</span> party_group</span><br></pre></td></tr></table></figure>
+<p>后台简单的查询所有就可以，数据处理交给自由的js。<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//获取机构  </span></span><br><span class="line">$scope.getPartyGroup = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;  </span><br><span class="line">	$http.get(BASEURL+<span class="string">'/partyGroup/getPartyGroup'</span>).success(<span class="function"><span class="keyword">function</span>(<span class="params">resData</span>)</span>&#123;  </span><br><span class="line">	    $scope.groups = resData.list;<span class="comment">//将数据存入$scope.groups；list是我后台存储的键</span></span><br><span class="line">		<span class="comment">//获取所有一级列表</span></span><br><span class="line">		<span class="keyword">var</span> topArray = [];  </span><br><span class="line">		<span class="comment">//一级列表就是上级id为0的数据，存入数组 topArray </span></span><br><span class="line">		<span class="keyword">for</span>(<span class="keyword">var</span> i=<span class="number">0</span> ;i &lt; $scope.groups.length; i++)&#123;  </span><br><span class="line">			<span class="keyword">if</span>($scope.groups[i].nPid == <span class="number">0</span>)&#123;  </span><br><span class="line">	            topArray.push($scope.groups[i]);  </span><br><span class="line">			&#125;  </span><br><span class="line">		&#125;  </span><br><span class="line">        <span class="comment">//递归装配子集合  </span></span><br><span class="line">		$scope.fillTree(topArray);  </span><br><span class="line">		<span class="built_in">console</span>.log(topArray);<span class="comment">//打印验证一下</span></span><br><span class="line">		$scope.data = topArray;<span class="comment">//储存处理好的数据，交由模板处理生成页面</span></span><br><span class="line">		<span class="built_in">console</span>.log($scope.data);<span class="comment">//打印验证一下</span></span><br><span class="line">    &#125;);  </span><br><span class="line">&#125;;</span><br><span class="line"><span class="comment">//递归获取当前集合的下一级别数据</span></span><br><span class="line">$scope.fillTree = <span class="function"><span class="keyword">function</span> (<span class="params">array</span>) </span>&#123;  </span><br><span class="line">	<span class="keyword">if</span>(array!=<span class="literal">null</span>)&#123;  </span><br><span class="line">		<span class="keyword">for</span>(<span class="keyword">var</span> item <span class="keyword">in</span> array)&#123;  </span><br><span class="line">			<span class="keyword">var</span> childArray = [];<span class="comment">//当前的子集合  </span></span><br><span class="line">			<span class="keyword">for</span>(<span class="keyword">var</span> i =<span class="number">0</span>;i &lt; $scope.groups.length; i++)&#123;  </span><br><span class="line">                <span class="keyword">if</span>($scope.groups[i].nPid == array[item].nId)&#123;  </span><br><span class="line">                    childArray.push($scope.groups[i]);  </span><br><span class="line">				&#125;  </span><br><span class="line">            &#125;  </span><br><span class="line">            array[item].subGroup = childArray; <span class="comment">//tree的关键子集合属性</span></span><br><span class="line">			$scope.fillTree(childArray);  </span><br><span class="line">		&#125;  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
+<p>这里有三个注意的点</p>
+<ul>
+<li>js 既不是按值传递(call by value)，也不是按引用传递(call by reference)，而是按<strong>共享传递 （call by sharing）</strong>，这决定了<code>topArray</code>的数据为第一级列表与所有后代数据的集。</li>
+<li>交由<code>template</code>处理的数据<code>data</code>，类型<strong>必须</strong>为<code>array</code>。</li>
+<li>每层数据对象都要包含自己的子对象数组属性，我这里起名为<code>subGroup</code>，以供页面模板嵌套生成。</li>
+</ul>
+<h3 id="页面显示"><a href="#页面显示" class="headerlink" title="页面显示"></a>页面显示</h3><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 模板部分，包含折叠，添加，修改，删除功能 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">"text/ng-template"</span> <span class="attr">id</span>=<span class="string">"nodes_renderer"</span>&gt;</span><span class="undefined">  </span></span><br><span class="line"><span class="javascript">	&lt;div ui-tree-handle <span class="class"><span class="keyword">class</span></span>=<span class="string">"tree-node tree-node-content"</span> &gt;  </span></span><br><span class="line"><span class="javascript">		&lt;a <span class="class"><span class="keyword">class</span></span>=<span class="string">"btn btn-success btn-xs "</span> ng-<span class="keyword">if</span>=<span class="string">"group.subGroup&amp;&amp; group.subGroup.length &gt; 0"</span> data-nodrag ng-click=<span class="string">"toggle(this)"</span>&gt;  </span></span><br><span class="line"><span class="javascript">			&lt;span <span class="class"><span class="keyword">class</span></span>=<span class="string">"glyphicon"</span> ng-<span class="class"><span class="keyword">class</span></span>=<span class="string">"&#123;'glyphicon-chevron-right': collapsed,'glyphicon-chevron-down': !collapsed&#125;"</span>&gt;<span class="xml"><span class="tag">&lt;/<span class="name">span</span>&gt;</span></span></span></span><br><span class="line"><span class="xml">		<span class="tag">&lt;/<span class="name">a</span>&gt;</span>  </span></span><br><span class="line"><span class="xml">		<span class="tag">&lt;<span class="name">div</span> <span class="attr">ng-click</span>=<span class="string">"getPersonalForGroupId(group.nId)"</span> <span class="attr">style</span>=<span class="string">"display:inline-block; width:66%;"</span>&gt;</span>&#123;&#123;group.vcName&#125;&#125;<span class="tag">&lt;/<span class="name">div</span>&gt;</span>  </span></span><br><span class="line"><span class="javascript">		&lt;a ng-show=<span class="string">"group.bLeaf !=1 || group.subGroup.length == 0"</span> <span class="class"><span class="keyword">class</span></span>=<span class="string">"pull-right btn btn-danger btn-xs"</span> data-nodrag ng-click=<span class="string">"removeThis(this)"</span>&gt;</span></span><br><span class="line"><span class="javascript">			&lt;span <span class="class"><span class="keyword">class</span></span>=<span class="string">"glyphicon glyphicon-remove"</span>&gt;<span class="xml"><span class="tag">&lt;/<span class="name">span</span>&gt;</span></span></span></span><br><span class="line"><span class="xml">		<span class="tag">&lt;/<span class="name">a</span>&gt;</span>  </span></span><br><span class="line"><span class="javascript">		&lt;a <span class="class"><span class="keyword">class</span></span>=<span class="string">"pull-right btn btn-danger btn-xs"</span> data-nodrag ui-sref=<span class="string">"addPartyGroup(&#123;group:group&#125;)"</span>&gt;</span></span><br><span class="line"><span class="javascript">			&lt;span <span class="class"><span class="keyword">class</span></span>=<span class="string">"glyphicon glyphicon-edit"</span>&gt;<span class="xml"><span class="tag">&lt;/<span class="name">span</span>&gt;</span></span><span class="xml"><span class="tag">&lt;/<span class="name">a</span>&gt;</span></span>  </span></span><br><span class="line"><span class="javascript">		&lt;a ng-show=<span class="string">"group.bLeaf == 1"</span> <span class="class"><span class="keyword">class</span></span>=<span class="string">"pull-right btn btn-primary btn-xs"</span> data-nodrag ng-click=<span class="string">"newSubGroup(this)"</span> style=<span class="string">"margin-right: 8px;"</span>&gt;</span></span><br><span class="line"><span class="javascript">			&lt;span <span class="class"><span class="keyword">class</span></span>=<span class="string">"glyphicon glyphicon-plus"</span>&gt;<span class="xml"><span class="tag">&lt;/<span class="name">span</span>&gt;</span></span></span></span><br><span class="line"><span class="xml">		<span class="tag">&lt;/<span class="name">a</span>&gt;</span>  </span></span><br><span class="line"><span class="xml">	<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span><br><span class="line"><span class="javascript">	&lt;ol ui-tree-nodes=<span class="string">""</span> ng-model=<span class="string">"group.subGroup"</span> ng-<span class="class"><span class="keyword">class</span></span>=<span class="string">"&#123;hidden: collapsed&#125;"</span>&gt;  </span></span><br><span class="line"><span class="javascript">		&lt;li ng-repeat=<span class="string">"group in group.subGroup"</span> ui-tree-node ng-include=<span class="string">"'nodes_renderer'"</span> &gt;<span class="xml"><span class="tag">&lt;/<span class="name">li</span>&gt;</span></span></span></span><br><span class="line"><span class="xml">	<span class="tag">&lt;/<span class="name">ol</span>&gt;</span></span></span><br><span class="line"><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- 如果没有后代，则不能折叠；如果没有下级字段为1，则可添加下级；通过data-nodrag设置不可拖动 --&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- 这里添加，修改，删除的代码就不再贴了，修改是直接跳转路由 --&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!-- 设置起点，引用模板 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"row"</span>&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"col-sm-12"</span>&gt;</span>  </span><br><span class="line">		<span class="tag">&lt;<span class="name">div</span> <span class="attr">ui-tree</span> <span class="attr">id</span>=<span class="string">"tree-root"</span> <span class="attr">data-drag-enabled</span>=<span class="string">"false"</span>&gt;</span>  </span><br><span class="line">			<span class="tag">&lt;<span class="name">ol</span> <span class="attr">ui-tree-nodes</span> <span class="attr">ng-model</span>=<span class="string">"data"</span>&gt;</span>  </span><br><span class="line">				<span class="tag">&lt;<span class="name">li</span> <span class="attr">ng-repeat</span>=<span class="string">"group in data"</span> <span class="attr">ui-tree-node</span> <span class="attr">ng-include</span>=<span class="string">"'nodes_renderer'"</span> <span class="attr">collapsed</span>=<span class="string">"false"</span>&gt;</span><span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;/<span class="name">ol</span>&gt;</span>  </span><br><span class="line">		<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- 传入数据data，设置折叠属性collapsed --&gt;</span></span><br></pre></td></tr></table></figure>
+<p>好了，现在就可以查看效果了<br><img src="../../../../assets/img/机构树.png" alt="group_tree"></p>
+<h3 id="搭载checkbox"><a href="#搭载checkbox" class="headerlink" title="搭载checkbox"></a>搭载checkbox</h3><p>在模板上添加<code>checkbox</code><br><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 模板部分，包含折叠，勾选功能 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">"text/ng-template"</span> <span class="attr">id</span>=<span class="string">"nodes_renderer"</span>&gt;</span><span class="undefined">  </span></span><br><span class="line"><span class="javascript">	&lt;div ui-tree-handle <span class="class"><span class="keyword">class</span></span>=<span class="string">"tree-node tree-node-content"</span> style=<span class="string">"margin-left: 0px"</span>&gt;  </span></span><br><span class="line"><span class="javascript">		&lt;a <span class="class"><span class="keyword">class</span></span>=<span class="string">"btn btn-success btn-xs "</span> ng-<span class="keyword">if</span>=<span class="string">"group.subGroup &amp;&amp; group.subGroup.length &gt; 0"</span> data-nodrag ng-click=<span class="string">"toggle(this)"</span>&gt;  </span></span><br><span class="line"><span class="javascript">			&lt;span <span class="class"><span class="keyword">class</span></span>=<span class="string">"glyphicon"</span> ng-<span class="class"><span class="keyword">class</span></span>=<span class="string">"&#123;'glyphicon-chevron-right': collapsed,'glyphicon-chevron-down': !collapsed&#125;"</span>&gt;<span class="xml"><span class="tag">&lt;/<span class="name">span</span>&gt;</span></span>  </span></span><br><span class="line"><span class="xml">		<span class="tag">&lt;/<span class="name">a</span>&gt;</span> </span></span><br><span class="line"><span class="javascript">		&lt;input name=<span class="string">"groupCheck"</span> type=<span class="string">"checkbox"</span> style=<span class="string">"vertical-align: bottom;width:15px;height:15px;margin-right:3px;"</span>  </span></span><br><span class="line"><span class="javascript">  ng-click=<span class="string">"checkClick(this)"</span> ng-checked=<span class="string">"group.isCheck"</span> value=<span class="string">"&#123;&#123;group.nId&#125;&#125;"</span> &gt;&#123;&#123;group.vcName&#125;&#125;  </span></span><br><span class="line"><span class="xml">	<span class="tag">&lt;/<span class="name">div</span>&gt;</span>  </span></span><br><span class="line"><span class="javascript">	&lt;ol ui-tree-nodes=<span class="string">""</span> ng-model=<span class="string">"group.subGroup"</span> ng-<span class="class"><span class="keyword">class</span></span>=<span class="string">"&#123;hidden: collapsed&#125;"</span>&gt;  </span></span><br><span class="line"><span class="xml">		<span class="tag">&lt;<span class="name">li</span> <span class="attr">ng-repeat</span>=<span class="string">"group in group.subGroup"</span> <span class="attr">ui-tree-node</span> <span class="attr">ng-include</span>=<span class="string">"'nodes_renderer'"</span>&gt;</span>  </span></span><br><span class="line"><span class="xml">		<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span></span><br><span class="line"><span class="xml">	<span class="tag">&lt;/<span class="name">ol</span>&gt;</span></span></span><br><span class="line"><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- 通过新属性 isCheck 判断是否勾选--&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!-- 瘦身，紧凑的css，可不写 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">style</span>&gt;</span><span class="undefined">  </span></span><br><span class="line"><span class="undefined">  .tree-node-content &#123;  </span></span><br><span class="line"><span class="undefined">        margin: 1px;  </span></span><br><span class="line"><span class="undefined">  &#125;  </span></span><br><span class="line"><span class="undefined">    .angular-ui-tree-handle &#123;  </span></span><br><span class="line"><span class="undefined">        padding: 2px 0;  </span></span><br><span class="line"><span class="undefined">  &#125;  </span></span><br><span class="line"><span class="undefined"></span><span class="tag">&lt;/<span class="name">style</span>&gt;</span></span><br></pre></td></tr></table></figure></p>
+<p>效果图</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">//子父级联动</span></span><br><span class="line"><span class="comment">//一、多级关系保持一致</span></span><br><span class="line"><span class="comment">//处理一级选择一致  </span></span><br><span class="line">$scope.checkClick = <span class="function"><span class="keyword">function</span> (<span class="params">obj</span>) </span>&#123;  </span><br><span class="line">    <span class="keyword">var</span> model = obj.$nodeScope.$modelValue;<span class="comment">//通过this形式，找到当前对象数据</span></span><br><span class="line">	<span class="keyword">if</span> (model.bLeaf)&#123;<span class="comment">//如果有下一级</span></span><br><span class="line">		<span class="keyword">var</span> obj_=<span class="built_in">document</span>.getElementsByName(<span class="string">'groupCheck'</span>);<span class="comment">//为每个checkbox设置的name </span></span><br><span class="line">		<span class="keyword">for</span>(<span class="keyword">var</span> j=<span class="number">0</span>; j&lt;obj_.length; j++)&#123;  </span><br><span class="line"></span><br><span class="line">			<span class="keyword">if</span>(model.nId == obj_[j].value)&#123;  </span><br><span class="line">	            <span class="comment">//有子节点  </span></span><br><span class="line">				$scope.checkSubLeaf(model.subGroup,obj_[j].checked);  </span><br><span class="line">				<span class="keyword">return</span>;  </span><br><span class="line">			&#125;  </span><br><span class="line">	    &#125;  </span><br><span class="line">	&#125;  </span><br><span class="line">&#125;;  </span><br><span class="line"><span class="comment">//迭代勾选全部后代 state为上一级的状态</span></span><br><span class="line">$scope.checkSubLeaf = <span class="function"><span class="keyword">function</span> (<span class="params">subGroup,state</span>) </span>&#123;  </span><br><span class="line">    <span class="keyword">if</span>(subGroup != <span class="literal">undefined</span>)&#123;</span><br><span class="line">        <span class="keyword">var</span> obj_=<span class="built_in">document</span>.getElementsByName(<span class="string">'groupCheck'</span>);  </span><br><span class="line">		<span class="keyword">for</span>(<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; obj_.length; i++)&#123;  </span><br><span class="line">	        <span class="keyword">for</span>(<span class="keyword">var</span> j = <span class="number">0</span>; j &lt; subGroup.length; j++)&#123;  </span><br><span class="line">		        <span class="keyword">if</span>(obj_[i].value == subGroup[j].nId) &#123;  </span><br><span class="line">					obj_[i].checked = state;  </span><br><span class="line">					$scope.checkSubLeaf(subGroup[j].subGroup, state);  </span><br><span class="line">				&#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="comment">//二、两级关系保持一致</span></span><br><span class="line"><span class="comment">//前提，点击事件绑定不再用 this 改为：ng-click="checkClick($event)"</span></span><br><span class="line">$scope.checkClick = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;  </span><br><span class="line">	<span class="comment">//后代同 祖宗选择一致  </span></span><br><span class="line">	<span class="keyword">var</span> isChecked = event.target.checked;  </span><br><span class="line">	<span class="keyword">var</span> checkArray = $(event.target).closest(<span class="string">"li"</span>).find(<span class="string">".tree-check"</span>);<span class="comment">//通过标签关系找到所有后代checkbox  </span></span><br><span class="line">	<span class="keyword">for</span>(<span class="keyword">var</span> i = <span class="number">0</span>;i &lt; checkArray.length; i++)&#123;  </span><br><span class="line">		checkArray[i].checked = isChecked;  </span><br><span class="line">	&#125;  </span><br><span class="line">    <span class="comment">//子选父必选，可不写</span></span><br><span class="line">	<span class="keyword">if</span>(isChecked)&#123;  </span><br><span class="line">        <span class="keyword">var</span> parentCheck = $(event.target).closest(<span class="string">"ol"</span>).prev().find(<span class="string">".tree-check"</span>);<span class="comment">//父checkbox  </span></span><br><span class="line">		<span class="keyword">if</span>(parentCheck.length &gt; <span class="number">0</span>)&#123;  </span><br><span class="line">	        parentCheck[<span class="number">0</span>].checked = isChecked;  </span><br><span class="line">		&#125;  </span><br><span class="line">	&#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>回显的思想</p>
+<ol>
+<li>获取已选择的机构的集</li>
+<li>根据1的集，标记所有机构对象的<code>isChecked</code>属性</li>
+<li>模板生成</li>
+</ol>
+<h2 id="坑"><a href="#坑" class="headerlink" title="坑"></a>坑</h2><p>提供给模板的数据必须是数组Array类型，单个元素的话，页面生成会看不到数据，只有空白的条条，试了很久才发现，有点难受。</p>
+<p>就写到这里，欢迎指教~</p>
+<blockquote>
+<p>最后更新于 2018-05-10</p>
+</blockquote>
+
+    </article>
+    <!-- 前后页  -->
+    <ul class="post-paginator">
+        <li class="next">
+            
+        </li>
+        <li class="previous">
+            
+                <div class="prevSlogan">Previous Post</div>
+                <a href= "/2018/04/24/自序/" title= 自序 >
+                    <div class="prevTitle">自序</div>
+                </a>
+            
+        </li>
+    </ul>
+    <!-- 评论插件 -->
+    <!-- 来必力City版安装代码 -->
+
+<!-- City版安装代码已完成 -->
+    
+    
+    <!--PC版-->
+
+    <!--PC版-->
+
+
+    
+    <!-- 评论 -->
+</main>
+            <!-- profile -->
+            
+        </div>
+        <footer class="footer footer-unloaded">
+    <!-- social  -->
+    
+    <div class="social">
+        
+    
+        
+            
+                <a href="mailto:463647828@qq.com" class="iconfont-archer email" title=email ></a>
+            
+        
+    
+        
+            
+                <a href="https://github.com/flyfish1024" class="iconfont-archer github" target="_blank" title=github></a>
+            
+        
+    
+        
+            
+                <span class="iconfont-archer wechat" title=wechat>
+                  
+                  <img class="profile-qr" src="/assets/wechat.jpg" />
+                </span>
+            
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+    </div>
+    
+    <!-- powered by Hexo  -->
+    <div class="copyright">
+        <span id="hexo-power">Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span><span class="iconfont-archer power">&#xe635;</span><span id="theme-info">theme <a href="https://github.com/fi3ework/hexo-theme-archer" target="_blank">Archer</a></span>
+    </div>
+    <!-- 不蒜子  -->
+    
+    <div class="busuanzi-container">
+        <span id="busuanzi_container_site_pv">PV: <span id="busuanzi_value_site_pv"></span>
+        </span>
+    </div>
+    
+</footer>
+    </div>
+    <!-- toc -->
+    
+    <div class="toc-wrapper" style=
+    
+
+
+
+
+
+
+
+top:70vh;
+
+    >
+        <div class="toc-catalog">
+            <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+        </div>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#插件作用"><span class="toc-number">1.</span> <span class="toc-text">插件作用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#使用流程"><span class="toc-number">2.</span> <span class="toc-text">使用流程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#数据库表结构"><span class="toc-number">2.1.</span> <span class="toc-text">数据库表结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#获取所有数据"><span class="toc-number">2.2.</span> <span class="toc-text">获取所有数据</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#页面显示"><span class="toc-number">2.3.</span> <span class="toc-text">页面显示</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#搭载checkbox"><span class="toc-number">2.4.</span> <span class="toc-text">搭载checkbox</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#坑"><span class="toc-number">3.</span> <span class="toc-text">坑</span></a></li></ol>
+    </div>
+    
+    <div class="back-top iconfont-archer">&#xe639;</div>
+    <div class="sidebar sidebar-hide">
+    <ul class="sidebar-tabs sidebar-tabs-active-0">
+        <li class="sidebar-tab-archives"><span class="iconfont-archer">&#xe67d;</span><span class="tab-name">Archive</span></li>
+        <li class="sidebar-tab-tags"><span class="iconfont-archer">&#xe61b;</span><span class="tab-name">Tag</span></li>
+        <li class="sidebar-tab-categories"><span class="iconfont-archer">&#xe666;</span><span class="tab-name">Cate</span></li>
+    </ul>
+    <div class="sidebar-content sidebar-content-show-archive">
+          <div class="sidebar-panel-archives">
+    <!-- 在ejs中将archive按照时间排序 -->
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <div class="total-archive"> Total : 3 </div>
+    
+    <div class="post-archive">
+    
+    
+    
+    
+    <div class="archive-year"> 2018 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">05/06</span><a class="archive-post-title" href= "/2018/05/06/ui-tree/" >Angular ui-tree 使用心得</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/24</span><a class="archive-post-title" href= "/2018/04/24/自序/" >自序</a>
+        </li>
+    
+    
+    
+    
+    
+        </ul>
+    
+    <div class="archive-year"> 1024 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/20</span><a class="archive-post-title" href= "/1024/04/20/hello-world/" >hello world</a>
+        </li>
+    
+    </div>
+  </div>
+        <div class="sidebar-panel-tags">
+    <div class="sidebar-tags-name">
+    
+        <span class="sidebar-tag-name" data-tags="angular"><span class="iconfont-archer">&#xe606;</span>angular</span>
+    
+        <span class="sidebar-tag-name" data-tags="js"><span class="iconfont-archer">&#xe606;</span>js</span>
+    
+        <span class="sidebar-tag-name" data-tags="闲扯"><span class="iconfont-archer">&#xe606;</span>闲扯</span>
+    
+    </div>
+    <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
+    <div class="tag-load-fail" style="display: none; color: #ccc; font-size: 0.6rem;">
+    缺失模块。<br/>
+    1、请确保node版本大于6.2<br/>
+    2、在博客根目录（注意不是archer根目录）执行以下命令：<br/>
+    <span style="color: #f75357; font-size: 1rem; line-height: 2rem;">npm i hexo-generator-json-content --save</span><br/>
+    3、在根目录_config.yml里添加配置：
+    <pre style="color: #787878; font-size: 0.6rem;">
+jsonContent:
+  meta: false
+  pages: false
+  posts:
+    title: true
+    date: true
+    path: true
+    text: false
+    raw: false
+    content: false
+    slug: false
+    updated: false
+    comments: false
+    link: false
+    permalink: false
+    excerpt: false
+    categories: true
+    tags: true</pre>
+    </div> 
+    <div class="sidebar-tags-list"></div>
+</div>
+        <div class="sidebar-panel-categories">
+    <div class="sidebar-categories-name">
+    
+    </div>
+    <div class="iconfont-archer sidebar-categories-empty">&#xe678;</div>
+    <div class="sidebar-categories-list"></div>
+</div>
+    </div>
+</div> 
+    <script>
+    var siteMeta = {
+        root: '/',
+        author: 'flyFish'
+    }
+</script>
+    <!-- busuanzi  -->
+    
+    <script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    
+    <!-- CNZZ  -->
+    
+    </div>
+    <!-- async load share.js -->
+    
+        <script src="/scripts/share.js" async></script>    
+    
+    </body>
+</html>
+
+
