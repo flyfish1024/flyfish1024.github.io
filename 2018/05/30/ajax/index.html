@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html>
+    <!-- title -->
+
+
+
+
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" >
+    <meta name="description" content="爱生活，爱java">
+    <title>Ajax 使用总结 · flyFish</title>
+    <style type="text/css">
+    @font-face {
+        font-family: 'Oswald-Regular';
+        src: url("/font/Oswald-Regular.ttf");
+    }
+
+    body {
+        margin: 0;
+    }
+
+    header,
+    footer,
+    .back-top,
+    .sidebar,
+    .container,
+    .site-intro-meta,
+    .toc-wrapper {
+        display: none;
+    }
+
+    .site-intro {
+        position: relative;
+        z-index: 3;
+        width: 100%;
+        /* height: 50vh; */
+        overflow: hidden;
+    }
+
+    .site-intro-placeholder {
+        position: absolute;
+        z-index: -2;
+        top: 0;
+        left: 0;
+        width: calc(100% + 300px);
+        height: 100%;
+        background: repeating-linear-gradient(-45deg, #444 0, #444 80px, #333 80px, #333 160px);
+        background-position: center center;
+        transform: translate3d(-226px, 0, 0);
+        animation: gradient-move 2.5s ease-out 0s 1;
+    }
+
+    @keyframes gradient-move {
+        0% {
+            transform: translate3d(-226px, 0, 0);
+        }
+        100% {
+            transform: translate3d(0, 0, 0);
+        }
+    }
+
+</style>
+
+    <link rel="preload" href= /css/style.css?v=20180317 as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="stylesheet" type="text/css" href= /css/mobile.css?v=20180317 media="(max-width: 980px)"/>
+    
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        
+    <link rel="icon" href= /assets/favicon.ico>
+    <script>
+        (function (w) {
+            "use strict";
+            // rel=preload support test
+            if (!w.loadCSS) {
+                w.loadCSS = function () { };
+            }
+            // define on the loadCSS obj
+            var rp = loadCSS.relpreload = {};
+            // rel=preload feature support test
+            // runs once and returns a function for compat purposes
+            rp.support = (function () {
+                var ret;
+                try {
+                    ret = w.document.createElement("link").relList.supports("preload");
+                } catch (e) {
+                    ret = false;
+                }
+                return function () {
+                    return ret;
+                };
+            })();
+
+            // if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+            // then change that media back to its intended value on load
+            rp.bindMediaToggle = function (link) {
+                // remember existing media attr for ultimate state, or default to 'all'
+                var finalMedia = link.media || "all";
+
+                function enableStylesheet() {
+                    link.media = finalMedia;
+                }
+
+                // bind load handlers to enable media
+                if (link.addEventListener) {
+                    link.addEventListener("load", enableStylesheet);
+                } else if (link.attachEvent) {
+                    link.attachEvent("onload", enableStylesheet);
+                }
+
+                // Set rel and non-applicable media type to start an async request
+                // note: timeout allows this to happen async to let rendering continue in IE
+                setTimeout(function () {
+                    link.rel = "stylesheet";
+                    link.media = "only x";
+                });
+                // also enable media after 3 seconds,
+                // which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+                setTimeout(enableStylesheet, 3000);
+            };
+
+            // loop through link elements in DOM
+            rp.poly = function () {
+                // double check this to prevent external calls from running
+                if (rp.support()) {
+                    return;
+                }
+                var links = w.document.getElementsByTagName("link");
+                for (var i = 0; i < links.length; i++) {
+                    var link = links[i];
+                    // qualify links to those with rel=preload and as=style attrs
+                    if (link.rel === "preload" && link.getAttribute("as") === "style" && !link.getAttribute("data-loadcss")) {
+                        // prevent rerunning on link
+                        link.setAttribute("data-loadcss", true);
+                        // bind listeners to toggle media back
+                        rp.bindMediaToggle(link);
+                    }
+                }
+            };
+
+            // if unsupported, run the polyfill
+            if (!rp.support()) {
+                // run once at least
+                rp.poly();
+
+                // rerun poly on an interval until onload
+                var run = w.setInterval(rp.poly, 500);
+                if (w.addEventListener) {
+                    w.addEventListener("load", function () {
+                        rp.poly();
+                        w.clearInterval(run);
+                    });
+                } else if (w.attachEvent) {
+                    w.attachEvent("onload", function () {
+                        rp.poly();
+                        w.clearInterval(run);
+                    });
+                }
+            }
+            // commonjs
+            if (typeof exports !== "undefined") {
+                exports.loadCSS = loadCSS;
+            }
+            else {
+                w.loadCSS = loadCSS;
+            }
+        }(typeof global !== "undefined" ? global : this));
+    </script>
+    <script src="//cdn.staticfile.org/jquery/3.2.1/jquery.min.js" defer></script>
+    <script src="/scripts/main.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js" defer></script>
+    <!-- 百度统计  -->
+    
+    <!-- 谷歌统计  -->
+    
+</head>
+
+    
+        <body class="post-body">
+    
+    
+<header class="header">
+
+    <div class="read-progress"></div>
+    <div class="header-sidebar-menu">&#xe775;</div>
+    <!-- post页的toggle banner  -->
+    
+    <div class="banner">
+            <div class="blog-title">
+                <a href="/" >flyFish&#39;s recorder.</a>
+            </div>
+            <div class="post-title">
+                <a href="#" class="post-name">Ajax 使用总结</a>
+            </div>
+    </div>
+    
+    <a class="home-link" href=/>flyFish's recorder.</a>
+</header>
+    <div class="wrapper">
+        <div class="site-intro" style=
+
+
+
+
+
+
+
+
+height:70vh;
+
+>
+    
+    <!-- 主页  -->
+    
+    
+    <!-- 404页  -->
+            
+    <div class="site-intro-img" style="background-image: url(/intro/ajax.jpg)"></div>
+    <div class="site-intro-placeholder"></div>
+    <div class="site-intro-meta">
+        <!-- 标题  -->
+        <h1 class="intro-title">
+            <!-- 主页  -->
+            
+            Ajax 使用总结
+            <!-- 404 -->
+            
+        </h1>
+        <!-- 副标题 -->
+        <p class="intro-subtitle">
+            <!-- 主页副标题  -->
+            
+            
+            <!-- 404 -->
+            
+        </p>
+        <!-- 文章页meta -->
+        
+            <!-- 文章页标签  -->
+            
+                <div class= post-intro-tags >
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "ajax">ajax</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "jquery">jquery</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "angular">angular</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "js">js</a>
+    
+</div>
+            
+            <div class="post-intro-meta">
+                <span class="post-intro-calander iconfont-archer">&#xe676;</span>
+                <span class="post-intro-time">2018/05/30</span>
+                
+                <span id="busuanzi_container_page_pv" class="busuanzi-pv">
+                    <span class="iconfont-archer">&#xe602;</span>
+                    <span id="busuanzi_value_page_pv"></span>
+                </span>
+                
+                <span class="shareWrapper">
+                    <span class="iconfont-archer shareIcon">&#xe71d;</span>
+                    <span class="shareText">Share</span>
+                    <ul class="shareList">
+                        <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                            <div class="share-qrcode"></div>
+                        </li>
+                        <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                        <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                        <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                        <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                    </ul>
+                </span>
+            </div>
+        
+    </div>
+</div>
+        <script>
+  // load webfont-loader async, and add callback function
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+  
+  // get user agent
+  var browser = {
+    versions: function () {
+      var u = window.navigator.userAgent;
+      return {
+        userAgent: u,
+        trident: u.indexOf('Trident') > -1, //IE内核
+        presto: u.indexOf('Presto') > -1, //opera内核
+        webKit: u.indexOf('AppleWebKit') > -1, //苹果、谷歌内核
+        gecko: u.indexOf('Gecko') > -1 && u.indexOf('KHTML') == -1, //火狐内核
+        mobile: !!u.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
+        ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
+        android: u.indexOf('Android') > -1 || u.indexOf('Linux') > -1, //android终端或者uc浏览器
+        iPhone: u.indexOf('iPhone') > -1 || u.indexOf('Mac') > -1, //是否为iPhone或者安卓QQ浏览器
+        iPad: u.indexOf('iPad') > -1, //是否为iPad
+        webApp: u.indexOf('Safari') == -1, //是否为web应用程序，没有头部与底部
+        weixin: u.indexOf('MicroMessenger') == -1, //是否为微信浏览器
+        uc: u.indexOf('UCBrowser') > -1 //是否为android下的UC浏览器
+      };
+    }()
+  }
+  console.log("userAgent:" + browser.versions.userAgent);
+
+  // callback
+  function fontLoaded() {
+    console.log('font loaded');
+    if (document.getElementsByClassName('site-intro-meta')) {
+      document.getElementsByClassName('intro-title')[0].classList.add('intro-fade-in');
+      document.getElementsByClassName('intro-subtitle')[0].classList.add('intro-fade-in');
+      var postIntroTags = document.getElementsByClassName('post-intro-tags')[0],
+        postIntroMeat = document.getElementsByClassName('post-intro-meta')[0];
+      if (postIntroTags) {
+        postIntroTags.classList.add('post-fade-in');
+      }
+      if (postIntroMeat) {
+        postIntroMeat.classList.add('post-fade-in');
+      }
+    }
+  }
+
+  // UC不支持跨域，所以直接显示
+  function asyncCb(){
+    if (browser.versions.uc) {
+      console.log("UCBrowser");
+      fontLoaded();
+    } else {
+      WebFont.load({
+        custom: {
+          families: ['Oswald-Regular']
+        },
+        loading: function () {  //所有字体开始加载
+          // console.log('loading');
+        },
+        active: function () {  //所有字体已渲染
+          fontLoaded();
+        },
+        inactive: function () { //字体预加载失败，无效字体或浏览器不支持加载
+          console.log('inactive: timeout');
+          fontLoaded();
+        },
+        timeout: 5000 // Set the timeout to two seconds
+      });
+    }
+  }
+
+  async("https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js", asyncCb)
+</script>        
+        <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
+        <div class="container container-unloaded">
+            <main class="main post-page">
+    <article class="article-entry">
+        <hr>
+<p><strong>ajax可以说是很基本也很nice的功能，自己在使用中发现，ajax在js，jquery与angular中非常相似，又有区别，这里统一整理下</strong></p>
+<ul>
+<li>ajax介绍</li>
+<li>js使用</li>
+<li>jquery使用</li>
+<li>angular（$http）使用</li>
+</ul>
+<hr>
+<h2 id="ajax介绍"><a href="#ajax介绍" class="headerlink" title="ajax介绍"></a>ajax介绍</h2><p>AJAX = Asynchronous JavaScript 和 XML（当然，可以传递特殊的字符串：json）。</p>
+<p>AJAX 是一种用于创建快速动态网页的技术。</p>
+<p>通过在后台与服务器进行少量数据交换，AJAX 可以使网页实现异步更新。这意味着可以在不重新加载整个网页的情况下，对网页的某部分进行更新。</p>
+<h2 id="js使用"><a href="#js使用" class="headerlink" title="js使用"></a>js使用</h2><p>异步的核心对象：<code>XMLHttpRequest</code>(XHR)。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">通过获取核心对象，调用其api，回调做成功数据处理。</span><br></pre></td></tr></table></figure>
+<p>获取XMLHttpRequest对象。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span>  xmlhttp; </span><br><span class="line"><span class="keyword">if</span>  (<span class="built_in">window</span>.XMLHttpRequest)  </span><br><span class="line">&#123;  </span><br><span class="line">	<span class="comment">// IE7+, Firefox, Chrome, Opera, Safari 浏览器执行代码  </span></span><br><span class="line">	xmlhttp=<span class="keyword">new</span>  XMLHttpRequest(); &#125;</span><br><span class="line"><span class="keyword">else</span>  </span><br><span class="line">&#123;  </span><br><span class="line">	<span class="comment">// IE6, IE5 浏览器执行代码  </span></span><br><span class="line">	xmlhttp=<span class="keyword">new</span>  ActiveXObject(<span class="string">"Microsoft.XMLHTTP"</span>); </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>调用api，设置请求参数，回调函数</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//状态回调函数，当ajax执行流程为4，并且http请求状态码为200，异步成功</span></span><br><span class="line">xmlhttp.onreadystatechange=<span class="function"><span class="keyword">function</span>(<span class="params"></span>)  </span>&#123;  </span><br><span class="line">	<span class="keyword">if</span>  (xmlhttp.readyState==<span class="number">4</span> &amp;&amp; xmlhttp.status==<span class="number">200</span>)  &#123;  </span><br><span class="line">		<span class="built_in">document</span>.getElementById(<span class="string">"myDiv"</span>).innerHTML=xmlhttp.responseText; </span><br><span class="line">	&#125;  </span><br><span class="line">&#125;  </span><br><span class="line"><span class="comment">//规定请求的类型、URL 以及是否异步处理请求。</span></span><br><span class="line"><span class="comment">//get</span></span><br><span class="line">xmlhttp.open(<span class="string">"GET"</span>,<span class="string">"/try/ajax/ajax_info.txt"</span>,<span class="literal">true</span>); </span><br><span class="line"><span class="comment">//请求发送</span></span><br><span class="line">xmlhttp.send();</span><br><span class="line"></span><br><span class="line"><span class="comment">//post</span></span><br><span class="line">xmlhttp.open(<span class="string">"POST"</span>,<span class="string">"/try/ajax/demo_post2.php"</span>,<span class="literal">true</span>); </span><br><span class="line"><span class="comment">//设置请求头，传递url格式的数据，&amp;与=连接</span></span><br><span class="line">xmlhttp.setRequestHeader(<span class="string">"Content-type"</span>,<span class="string">"application/x-www-form-urlencoded"</span>); </span><br><span class="line"><span class="comment">//发送数据</span></span><br><span class="line">xmlhttp.send(<span class="string">"fname=Henry&amp;lname=Ford"</span>);</span><br></pre></td></tr></table></figure>
+<p>补充一下，返回值也可为responseXML，可在js中进行解析，还是responseText多一些。</p>
+<h2 id="jquery"><a href="#jquery" class="headerlink" title="jquery"></a>jquery</h2><h3 id="load"><a href="#load" class="headerlink" title="load"></a>load</h3><p>从服务器加载数据，并把返回的数据放入被选元素中，需要由元素调用，不太灵活，用的较少，了解一下就行。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$(selector).load(URL,data,callback);</span><br></pre></td></tr></table></figure>
+<ul>
+<li>必需的  <em>URL</em>  参数规定您希望加载的 <em>URL</em>。</li>
+<li>可选的  <em>data</em>  参数规定与请求一同发送的查询字符串键/值对集合。</li>
+<li>可选的  <em>callback</em>  参数是 load() 方法完成后所执行的函数名称。  </li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">$(<span class="string">"button"</span>).click(<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123; </span><br><span class="line">	<span class="comment">//responseTxt 包含调用成功时的结果内容</span></span><br><span class="line">	<span class="comment">//statusTXT 包含调用的状态</span></span><br><span class="line">	<span class="comment">//xhr 包含 XMLHttpRequest 对象</span></span><br><span class="line">	$(<span class="string">"#div1"</span>).load(<span class="string">"demo_test.txt"</span>,<span class="function"><span class="keyword">function</span>(<span class="params">responseTxt,statusTxt,xhr</span>)</span>&#123;  </span><br><span class="line">		<span class="keyword">if</span>(statusTxt==<span class="string">"success"</span>)  </span><br><span class="line">			alert(<span class="string">"外部内容加载成功!"</span>); </span><br><span class="line">		<span class="keyword">if</span>(statusTxt==<span class="string">"error"</span>)  </span><br><span class="line">			alert(<span class="string">"Error: "</span>+xhr.status+<span class="string">": "</span>+xhr.statusText); </span><br><span class="line">	&#125;); </span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<h3 id="get-post"><a href="#get-post" class="headerlink" title="get/post"></a>get/post</h3><p>两个常用的get/post请求方式，js提供的便捷方式。</p>
+<p><strong>get</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$.get(URL,callback);</span><br></pre></td></tr></table></figure></p>
+<p><em>callback</em> 参数是请求成功后所执行的函数名。  </p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$(<span class="string">"button"</span>).click(<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123; </span><br><span class="line">	<span class="comment">//第一个回调参数存有被请求页面的内容，第二个回调参数存有请求的状态。 </span></span><br><span class="line">	$.get(<span class="string">"demo_test.php"</span>,<span class="function"><span class="keyword">function</span>(<span class="params">data,status</span>)</span>&#123;  </span><br><span class="line">		alert(<span class="string">"数据: "</span> + data + <span class="string">"\n状态: "</span> + status); </span><br><span class="line">	&#125;); </span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p><strong>post</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$.post(_URL,data,callback_);</span><br></pre></td></tr></table></figure>
+<ul>
+<li>必需的 <em>URL</em> 参数规定您希望请求的 URL。</li>
+<li>可选的 <em>data</em> 参数规定连同请求发送的数据。</li>
+<li>可选的 <em>callback</em> 参数是请求成功后所执行的函数名。</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$(<span class="string">"button"</span>).click(<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123; </span><br><span class="line">	$.post(<span class="string">"/try/ajax/demo_test_post.php"</span>, </span><br><span class="line">	&#123;  <span class="attr">name</span>:<span class="string">"菜鸟教程"</span>, <span class="attr">url</span>:<span class="string">"http://www.runoob.com"</span>  &#125;, </span><br><span class="line">	<span class="function"><span class="keyword">function</span>(<span class="params">data,status</span>)</span>&#123;  </span><br><span class="line">		alert(<span class="string">"数据: \n"</span> + data + <span class="string">"\n状态: "</span> + status); </span><br><span class="line">	&#125;); </span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<h3 id="ajax"><a href="#ajax" class="headerlink" title="ajax"></a>ajax</h3><p>jquery提供了通用的方式 <code>$.ajax</code>，开发者可以通过多项配置来实现自己的需求。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">$.ajax(&#123;  </span><br><span class="line">	type:<span class="string">"POST"</span>,  </span><br><span class="line">	<span class="keyword">async</span>: <span class="literal">true</span>,  </span><br><span class="line">	<span class="comment">//可以直接拼在url后，或者配置data</span></span><br><span class="line">	url: <span class="string">'&lt;%=basePath%&gt;article/readArticle.do?nId='</span> + nId, </span><br><span class="line">	<span class="comment">//data: &#123;nId:1&#125;, </span></span><br><span class="line">	success: <span class="function"><span class="keyword">function</span>(<span class="params">data</span>)</span>&#123;  </span><br><span class="line">		<span class="keyword">if</span>(data.nRes == <span class="number">1</span>)&#123;  </span><br><span class="line">			alert(<span class="string">"您已完成此篇文章的阅读！"</span>);  </span><br><span class="line">		&#125;  </span><br><span class="line">	&#125;  </span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>还有很多未展示的配置，详情可以参考文档。<br><a href="http://www.runoob.com/jquery/jquery-ref-ajax.html" target="_blank" rel="noopener">菜鸟教程</a></p>
+<h3 id="格式化"><a href="#格式化" class="headerlink" title="格式化"></a>格式化</h3><p>再补充几个传参时可能遇到的序列化方法。</p>
+<ul>
+<li>param()</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//将js对象转化为 ‘&amp;’ 与 ‘=’ 连接的url格式的字符串</span></span><br><span class="line">$.param(personObj)  </span><br><span class="line"><span class="comment">//firstname=John&amp;lastname=Doe&amp;age=50&amp;eyecolor=blue</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>serialize()  </li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//将表单数据name和value值变成 ‘&amp;’ 与 ‘=’ 连接的url格式的字符串，可直接拼接url传参</span></span><br><span class="line"><span class="keyword">var</span> serializeUrl = $(<span class="string">"form"</span>).serialize()  </span><br><span class="line"><span class="comment">//例：username=1333333333&amp;password=123456</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>serializeArray()</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//返回的是json对象，可调用JSON.stringify()，将对象转化为字符串</span></span><br><span class="line"><span class="comment">//通过json传递对象方便常用</span></span><br><span class="line"><span class="keyword">var</span> serializeJson = $(<span class="string">"#test_form"</span>).serializeArray();</span><br><span class="line"><span class="keyword">var</span> serializeJsonString = <span class="built_in">JSON</span>.stringify(serializeJson));</span><br></pre></td></tr></table></figure>
+<h2 id="angular"><a href="#angular" class="headerlink" title="angular"></a>angular</h2><p>异步核心对象 $http，对原生XMLHttpRequest对象的简单封装，需要在创建时controller引入。</p>
+<p><strong>$http</strong></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">$http(&#123;</span><br><span class="line">	 url:url, <span class="comment">//请求的url路径</span></span><br><span class="line">	method:‘GET’, <span class="comment">//GET/DELETE/HEAD/JSONP/POST/PUT</span></span><br><span class="line">	cache:<span class="literal">true</span>,   <span class="comment">//可对get请求进行缓存</span></span><br><span class="line">	params:params , <span class="comment">//转为 ?param1=xx1&amp;param2=xx2的形式</span></span><br><span class="line">	data: data <span class="comment">//包含了将被当做消息体发送给服务器的数据（可为对象类型，自动通过param()转换为键值对），通常在POST请求时使用</span></span><br><span class="line">&#125;).then(</span><br><span class="line">	<span class="function"><span class="keyword">function</span> <span class="title">successCallback</span>(<span class="params">response</span>)  </span>&#123;</span><br><span class="line">		<span class="comment">// 请求成功执行代码 </span></span><br><span class="line">	&#125;,</span><br><span class="line">	<span class="function"><span class="keyword">function</span> <span class="title">errorCallback</span>(<span class="params">response</span>)  </span>&#123;  </span><br><span class="line">		<span class="comment">// 请求失败执行代码  </span></span><br><span class="line">	&#125;);</span><br></pre></td></tr></table></figure>
+<p>response的五个参数</p>
+<ul>
+<li>data（字符串或对象）：响应体,就是后台返回的数据</li>
+<li>status:相应http的状态码,如200</li>
+<li>headers(函数)：头信息的getter函数，可以接受一个参数，用来获取对应名字的值</li>
+<li>config(对象)：生成原始请求的完整设置对象</li>
+<li>statusText:相应的http状态文本，如”ok”</li>
+</ul>
+<p>惯例，提供了几个快捷请求，整理了那两个常用的 0.0</p>
+<p><strong>.get</strong></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$http.get(<span class="string">'/someUrl'</span>, config).then(successCallback, errorCallback);</span><br><span class="line"></span><br><span class="line">$http.get(<span class="string">"h51701.json"</span>).then(<span class="function"><span class="keyword">function</span> <span class="title">successFunction</span>(<span class="params">a</span>)</span>&#123;</span><br><span class="line">	$scope.res = a;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p><strong>.post</strong></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$http.post(<span class="string">'/someUrl'</span>, data, config).then(successCallback, errorCallback);</span><br><span class="line"></span><br><span class="line">$http.post(<span class="string">"h51701.json"</span>,&#123;<span class="comment">/*传递的参数对象*/</span>&#125;).then(<span class="function"><span class="keyword">function</span> <span class="title">successFunction</span>(<span class="params">a</span>)</span>&#123;</span><br><span class="line">	$scope.data = a.data;<span class="comment">//从返回的信息中取出需要的数据</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p><strong>回调 .success / .error</strong></p>
+<p>回调如果不用then，可以用.success或者.error。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">$http(&#123;</span><br><span class="line">	method: <span class="string">"post"</span>,</span><br><span class="line">	url: ctx+<span class="string">'/player/lossPlayer/list.htm'</span>,</span><br><span class="line">	headers: &#123;</span><br><span class="line">		<span class="comment">//默认为application/json;charset=UTF-8，后台无法自动接收</span></span><br><span class="line">		<span class="string">'Content-Type'</span>: <span class="string">'application/x-www-form-urlencoded'</span></span><br><span class="line">		&#125;,</span><br><span class="line">	data: $.param(data)</span><br><span class="line">&#125;).success(<span class="function"><span class="keyword">function</span>(<span class="params">result</span>)</span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(result.tip!=<span class="literal">undefined</span>)&#123;</span><br><span class="line">		<span class="comment">//当前绑定的数据清空</span></span><br><span class="line">		$scope.players = [];</span><br><span class="line">		alert(result.tip);</span><br><span class="line">	&#125;<span class="keyword">else</span>&#123;</span><br><span class="line">		<span class="built_in">console</span>.log(result.json);</span><br><span class="line">		$scope.players = $.parseJSON(result.json).players;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>注：v1.5 中<code>$http</code> 的 <code>success</code> 和 <code>error</code> 方法已废弃。使用 <code>then</code> 方法替代。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">好啦，这些基本上够用的了。</span><br></pre></td></tr></table></figure>
+
+    </article>
+    <!-- 前后页  -->
+    <ul class="post-paginator">
+        <li class="next">
+            
+        </li>
+        <li class="previous">
+            
+                <div class="prevSlogan">Previous Post</div>
+                <a href= "/2018/05/06/ui-tree/" title= Angular ui-tree 使用心得 >
+                    <div class="prevTitle">Angular ui-tree 使用心得</div>
+                </a>
+            
+        </li>
+    </ul>
+    <!-- 评论插件 -->
+    <!-- 来必力City版安装代码 -->
+
+<!-- City版安装代码已完成 -->
+    
+    
+    <!--PC版-->
+
+    <!--PC版-->
+
+
+    
+    <!-- 评论 -->
+</main>
+            <!-- profile -->
+            
+        </div>
+        <footer class="footer footer-unloaded">
+    <!-- social  -->
+    
+    <div class="social">
+        
+    
+        
+            
+                <a href="mailto:463647828@qq.com" class="iconfont-archer email" title=email ></a>
+            
+        
+    
+        
+            
+                <a href="https://github.com/flyfish1024" class="iconfont-archer github" target="_blank" title=github></a>
+            
+        
+    
+        
+            
+                <span class="iconfont-archer wechat" title=wechat>
+                  
+                  <img class="profile-qr" src="/assets/wechat.jpg" />
+                </span>
+            
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+    </div>
+    
+    <!-- powered by Hexo  -->
+    <div class="copyright">
+        <span id="hexo-power">Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span><span class="iconfont-archer power">&#xe635;</span><span id="theme-info">theme <a href="https://github.com/fi3ework/hexo-theme-archer" target="_blank">Archer</a></span>
+    </div>
+    <!-- 不蒜子  -->
+    
+    <div class="busuanzi-container">
+        <span id="busuanzi_container_site_pv">PV: <span id="busuanzi_value_site_pv"></span>
+        </span>
+    </div>
+    
+</footer>
+    </div>
+    <!-- toc -->
+    
+    <div class="toc-wrapper" style=
+    
+
+
+
+
+
+
+
+top:70vh;
+
+    >
+        <div class="toc-catalog">
+            <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+        </div>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#ajax介绍"><span class="toc-number">1.</span> <span class="toc-text">ajax介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#js使用"><span class="toc-number">2.</span> <span class="toc-text">js使用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#jquery"><span class="toc-number">3.</span> <span class="toc-text">jquery</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#load"><span class="toc-number">3.1.</span> <span class="toc-text">load</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#get-post"><span class="toc-number">3.2.</span> <span class="toc-text">get/post</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ajax"><span class="toc-number">3.3.</span> <span class="toc-text">ajax</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#格式化"><span class="toc-number">3.4.</span> <span class="toc-text">格式化</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#angular"><span class="toc-number">4.</span> <span class="toc-text">angular</span></a></li></ol>
+    </div>
+    
+    <div class="back-top iconfont-archer">&#xe639;</div>
+    <div class="sidebar sidebar-hide">
+    <ul class="sidebar-tabs sidebar-tabs-active-0">
+        <li class="sidebar-tab-archives"><span class="iconfont-archer">&#xe67d;</span><span class="tab-name">Archive</span></li>
+        <li class="sidebar-tab-tags"><span class="iconfont-archer">&#xe61b;</span><span class="tab-name">Tag</span></li>
+        <li class="sidebar-tab-categories"><span class="iconfont-archer">&#xe666;</span><span class="tab-name">Cate</span></li>
+    </ul>
+    <div class="sidebar-content sidebar-content-show-archive">
+          <div class="sidebar-panel-archives">
+    <!-- 在ejs中将archive按照时间排序 -->
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <div class="total-archive"> Total : 4 </div>
+    
+    <div class="post-archive">
+    
+    
+    
+    
+    <div class="archive-year"> 2018 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">05/30</span><a class="archive-post-title" href= "/2018/05/30/ajax/" >Ajax 使用总结</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">05/06</span><a class="archive-post-title" href= "/2018/05/06/ui-tree/" >Angular ui-tree 使用心得</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/24</span><a class="archive-post-title" href= "/2018/04/24/自序/" >自序</a>
+        </li>
+    
+    
+    
+    
+    
+        </ul>
+    
+    <div class="archive-year"> 1024 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/20</span><a class="archive-post-title" href= "/1024/04/20/hello-world/" >hello world</a>
+        </li>
+    
+    </div>
+  </div>
+        <div class="sidebar-panel-tags">
+    <div class="sidebar-tags-name">
+    
+        <span class="sidebar-tag-name" data-tags="ajax"><span class="iconfont-archer">&#xe606;</span>ajax</span>
+    
+        <span class="sidebar-tag-name" data-tags="jquery"><span class="iconfont-archer">&#xe606;</span>jquery</span>
+    
+        <span class="sidebar-tag-name" data-tags="angular"><span class="iconfont-archer">&#xe606;</span>angular</span>
+    
+        <span class="sidebar-tag-name" data-tags="js"><span class="iconfont-archer">&#xe606;</span>js</span>
+    
+        <span class="sidebar-tag-name" data-tags="闲扯"><span class="iconfont-archer">&#xe606;</span>闲扯</span>
+    
+    </div>
+    <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
+    <div class="tag-load-fail" style="display: none; color: #ccc; font-size: 0.6rem;">
+    缺失模块。<br/>
+    1、请确保node版本大于6.2<br/>
+    2、在博客根目录（注意不是archer根目录）执行以下命令：<br/>
+    <span style="color: #f75357; font-size: 1rem; line-height: 2rem;">npm i hexo-generator-json-content --save</span><br/>
+    3、在根目录_config.yml里添加配置：
+    <pre style="color: #787878; font-size: 0.6rem;">
+jsonContent:
+  meta: false
+  pages: false
+  posts:
+    title: true
+    date: true
+    path: true
+    text: false
+    raw: false
+    content: false
+    slug: false
+    updated: false
+    comments: false
+    link: false
+    permalink: false
+    excerpt: false
+    categories: true
+    tags: true</pre>
+    </div> 
+    <div class="sidebar-tags-list"></div>
+</div>
+        <div class="sidebar-panel-categories">
+    <div class="sidebar-categories-name">
+    
+    </div>
+    <div class="iconfont-archer sidebar-categories-empty">&#xe678;</div>
+    <div class="sidebar-categories-list"></div>
+</div>
+    </div>
+</div> 
+    <script>
+    var siteMeta = {
+        root: '/',
+        author: 'flyFish'
+    }
+</script>
+    <!-- busuanzi  -->
+    
+    <script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    
+    <!-- CNZZ  -->
+    
+    </div>
+    <!-- async load share.js -->
+    
+        <script src="/scripts/share.js" async></script>    
+    
+    </body>
+</html>
+
+
