@@ -10,7 +10,7 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" >
     <meta name="description" content="爱生活，爱java">
-    <title>flyFish</title>
+    <title>事务概念（ACID） · flyFish</title>
     <style type="text/css">
     @font-face {
         font-family: 'Oswald-Regular';
@@ -65,6 +65,8 @@
 
     <link rel="preload" href= /css/style.css?v=20180317 as="style" onload="this.onload=null;this.rel='stylesheet'">
     <link rel="stylesheet" type="text/css" href= /css/mobile.css?v=20180317 media="(max-width: 980px)"/>
+    
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
         
     <link rel="icon" href= /assets/favicon.ico>
     <script>
@@ -175,12 +177,23 @@
 </head>
 
     
+        <body class="post-body">
+    
     
 <header class="header">
 
     <div class="read-progress"></div>
     <div class="header-sidebar-menu">&#xe775;</div>
     <!-- post页的toggle banner  -->
+    
+    <div class="banner">
+            <div class="blog-title">
+                <a href="/" >flyFish&#39;s recorder.</a>
+            </div>
+            <div class="post-title">
+                <a href="#" class="post-name">事务概念（ACID）</a>
+            </div>
+    </div>
     
     <a class="home-link" href=/>flyFish's recorder.</a>
 </header>
@@ -194,24 +207,69 @@
 
 
 
+height:70vh;
+
 >
     
     <!-- 主页  -->
+    
+    
+    <!-- 404页  -->
             
-    <div class="site-intro-img" style="background-image: url(/)"></div>
+    <div class="site-intro-img" style="background-image: url(/intro/transaction_concept.jpg)"></div>
     <div class="site-intro-placeholder"></div>
     <div class="site-intro-meta">
         <!-- 标题  -->
         <h1 class="intro-title">
             <!-- 主页  -->
             
+            事务概念（ACID）
+            <!-- 404 -->
+            
         </h1>
         <!-- 副标题 -->
         <p class="intro-subtitle">
             <!-- 主页副标题  -->
             
+            
+            <!-- 404 -->
+            
         </p>
         <!-- 文章页meta -->
+        
+            <!-- 文章页标签  -->
+            
+                <div class= post-intro-tags >
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "transaction">transaction</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "acid">acid</a>
+    
+</div>
+            
+            <div class="post-intro-meta">
+                <span class="post-intro-calander iconfont-archer">&#xe676;</span>
+                <span class="post-intro-time">2018/06/21</span>
+                
+                <span id="busuanzi_container_page_pv" class="busuanzi-pv">
+                    <span class="iconfont-archer">&#xe602;</span>
+                    <span id="busuanzi_value_page_pv"></span>
+                </span>
+                
+                <span class="shareWrapper">
+                    <span class="iconfont-archer shareIcon">&#xe71d;</span>
+                    <span class="shareText">Share</span>
+                    <ul class="shareList">
+                        <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                            <div class="share-qrcode"></div>
+                        </li>
+                        <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                        <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                        <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                        <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                    </ul>
+                </span>
+            </div>
         
     </div>
 </div>
@@ -295,30 +353,79 @@
 </script>        
         <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
         <div class="container container-unloaded">
-            <main class="main index-page">
+            <main class="main post-page">
+    <article class="article-entry">
+        <hr>
+<p><strong>事务算是后台编写中最基本的，最重要的也是有些难度的一块知识，而且应用场景很多，遇到复杂的场景就会发晕，这里再次细致地整理，巩固，学习一下。知识点比较多，拆成5篇学习，依次为</strong></p>
+<ol>
+<li>事务概念，ACID介绍</li>
+<li>数据库的事务的控制<ol>
+<li>数据库的隔离级别，悲观锁与乐观锁</li>
+</ol>
+</li>
+<li>jdbc的事务控制</li>
+<li>spring的事务的控制，事务的传播</li>
+<li>具体应用场景</li>
+</ol>
+<p>第一篇开始↓</p>
+<h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><p>事务机制是可以保证一系列写操作要么全部完成，要么全部不会完成，不会发生只完成一系列中一两个写操作，事务机制缺省<a href="缺省：就是默认，不用设置的默认情况。">^default</a>一般由数据库完成，也可以通过应用程序实现（如Java的JTA等）</p>
+<h2 id="ACID"><a href="#ACID" class="headerlink" title="ACID"></a>ACID</h2><p>一个事务本质上有四个特点ACID，他们分别是：</p>
+<ol>
+<li>Atomicity原子性</li>
+<li>Consistency一致性</li>
+<li>Isolation隔离性</li>
+<li>Durability耐久性</li>
+</ol>
+<h3 id="原子性"><a href="#原子性" class="headerlink" title="原子性"></a>原子性</h3><p>原子性任务是一个独立的操作单元，是一种要么全部是，要么全部不是的原子单位性的操作，不可分割（虽然现在发现比原子更小的单位了）。</p>
+<h3 id="一致性"><a href="#一致性" class="headerlink" title="一致性"></a>一致性</h3><p>一个事务可以改变状态（除非它是一个只读的）。事务必须始终保持系统处于一致的状态，不管在任何给定的时间并发事务有多少。</p>
+<p>一致性有下面特点：</p>
+<ul>
+<li>如果一个操作触发辅助操作（级联，触发器），这些也必须成功，否则交易失败。</li>
+<li>如果系统是由多个节点组成，一致性规定所有的变化必须传播到所有节点（多主复制<a href="浮动IP，实现复杂均衡；如果当前的主服务器挂掉后，会将你后端的从服务器自动转向新的主服务器进行同步复制，不用手工更改同步配置。">^Master_Replication</a>）。如果从站节点是异步更新，那么我们打破一致性规则，系统成为“最终一致性<a href="在分布式系统中，为了确保一致性，会引入类似消息中间件，某个操作可以失败，直到他成功，才会删除这个消息。">^eventual_consistency</a>”。</li>
+<li>一个事务是数据状态的切换，因此，如果事务是并发多个，系统也必须如同串行事务一样操作。</li>
+</ul>
+<p>在现实中，事务系统遭遇并发请求时，这种串行化是有成本的， Amdahl法则描述如下：它是描述序列串行执行和并发之间的关系。</p>
+<p>“一个程序在并行计算情况下使用多个处理器所能提升的速度是由这个程序中串行执行部分的时间决定的。”</p>
+<p>大多数数据库管理系统选择（默认情况下）是放宽一致性，以达到更好的并发性。</p>
+<h3 id="隔离性"><a href="#隔离性" class="headerlink" title="隔离性"></a>隔离性</h3><p>事务是并发控制机制，他们交错使用时也能提供一致性。隔离让我们隐藏来自外部世界未提交的状态变化，一个失败的事务不应该破坏系统的状态。隔离是通过用悲观或乐观锁机制实现的。隔离级别和锁后面会说到</p>
+<h3 id="耐久性"><a href="#耐久性" class="headerlink" title="耐久性"></a>耐久性</h3><p>一个成功的事务将永久性地改变系统的状态，所以在它结束之前，所有导致状态的变化都记录在一个持久的事务日志中。如果我们的系统突然受到系统崩溃或断电，那么所有未完成已提交的事务可能会重演。</p>
+<p>尽管一些数据库系统提供多版本并发控制 <a href="http://en.wikipedia.org/wiki/Multiversion_concurrency_control" target="_blank" rel="noopener">MVCC</a>, 他们的并发控制都是通过锁完成，因此，锁会增加执行的串行性，影响并发性。</p>
+<p>以上都是我查的文档和自己的个人理解，欢迎指教，探讨。</p>
+<p>绝大部分文字引用自<a href="http://www.jdon.com/" target="_blank" rel="noopener">jdon</a>，感谢前辈们~</p>
+
+    </article>
+    <!-- 前后页  -->
+    <ul class="post-paginator">
+        <li class="next">
+            
+                <div class="nextSlogan">Next Post</div>
+                <a href= "/2018/06/24/Transaction-Database/" title= 数据库的事务控制 >
+                    <div class="nextTitle">数据库的事务控制</div>
+                </a>
+            
+        </li>
+        <li class="previous">
+            
+                <div class="prevSlogan">Previous Post</div>
+                <a href= "/2018/06/01/problem-may/" title= 五月问题记录 >
+                    <div class="prevTitle">五月问题记录</div>
+                </a>
+            
+        </li>
+    </ul>
+    <!-- 评论插件 -->
+    <!-- 来必力City版安装代码 -->
+
+<!-- City版安装代码已完成 -->
     
     
+    <!--PC版-->
+
+    <!--PC版-->
+
+
     
-        <article class="index-post">
-            <a class="abstract-title" href = "/1024/04/20/hello-world/" >
-                
-                    <span>hello world</span>
-            </a>
-            <div class="abstract-content">
-                hello world~
-            </div>
-            <div class="abstract-post-meta">
-                <!-- date  -->
-                <div class="abstract-date">
-                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">1024/04/20</span>
-                </div>
-                <!-- tags  -->
-                
-            </div>
-        </article>
-    
-    <!-- paginator  -->
-    
+    <!-- 评论 -->
 </main>
             <!-- profile -->
             
@@ -391,6 +498,24 @@
 </footer>
     </div>
     <!-- toc -->
+    
+    <div class="toc-wrapper" style=
+    
+
+
+
+
+
+
+
+top:70vh;
+
+    >
+        <div class="toc-catalog">
+            <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+        </div>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#概念"><span class="toc-number">1.</span> <span class="toc-text">概念</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ACID"><span class="toc-number">2.</span> <span class="toc-text">ACID</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#原子性"><span class="toc-number">2.1.</span> <span class="toc-text">原子性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#一致性"><span class="toc-number">2.2.</span> <span class="toc-text">一致性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#隔离性"><span class="toc-number">2.3.</span> <span class="toc-text">隔离性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#耐久性"><span class="toc-number">2.4.</span> <span class="toc-text">耐久性</span></a></li></ol></li></ol>
+    </div>
     
     <div class="back-top iconfont-archer">&#xe639;</div>
     <div class="sidebar sidebar-hide">
@@ -615,6 +740,8 @@ jsonContent:
     
     </div>
     <!-- async load share.js -->
+    
+        <script src="/scripts/share.js" async></script>    
     
     </body>
 </html>

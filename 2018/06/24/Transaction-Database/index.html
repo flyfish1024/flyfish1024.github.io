@@ -10,7 +10,7 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" >
     <meta name="description" content="爱生活，爱java">
-    <title>flyFish</title>
+    <title>数据库的事务控制 · flyFish</title>
     <style type="text/css">
     @font-face {
         font-family: 'Oswald-Regular';
@@ -65,6 +65,8 @@
 
     <link rel="preload" href= /css/style.css?v=20180317 as="style" onload="this.onload=null;this.rel='stylesheet'">
     <link rel="stylesheet" type="text/css" href= /css/mobile.css?v=20180317 media="(max-width: 980px)"/>
+    
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
         
     <link rel="icon" href= /assets/favicon.ico>
     <script>
@@ -175,12 +177,23 @@
 </head>
 
     
+        <body class="post-body">
+    
     
 <header class="header">
 
     <div class="read-progress"></div>
     <div class="header-sidebar-menu">&#xe775;</div>
     <!-- post页的toggle banner  -->
+    
+    <div class="banner">
+            <div class="blog-title">
+                <a href="/" >flyFish&#39;s recorder.</a>
+            </div>
+            <div class="post-title">
+                <a href="#" class="post-name">数据库的事务控制</a>
+            </div>
+    </div>
     
     <a class="home-link" href=/>flyFish's recorder.</a>
 </header>
@@ -194,24 +207,75 @@
 
 
 
+height:70vh;
+
 >
     
     <!-- 主页  -->
+    
+    
+    <!-- 404页  -->
             
-    <div class="site-intro-img" style="background-image: url(/)"></div>
+    <div class="site-intro-img" style="background-image: url(/intro/transaction_database.jpg)"></div>
     <div class="site-intro-placeholder"></div>
     <div class="site-intro-meta">
         <!-- 标题  -->
         <h1 class="intro-title">
             <!-- 主页  -->
             
+            数据库的事务控制
+            <!-- 404 -->
+            
         </h1>
         <!-- 副标题 -->
         <p class="intro-subtitle">
             <!-- 主页副标题  -->
             
+            
+            <!-- 404 -->
+            
         </p>
         <!-- 文章页meta -->
+        
+            <!-- 文章页标签  -->
+            
+                <div class= post-intro-tags >
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "transaction">transaction</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "acid">acid</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "database">database</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "mysql">mysql</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "oracle">oracle</a>
+    
+</div>
+            
+            <div class="post-intro-meta">
+                <span class="post-intro-calander iconfont-archer">&#xe676;</span>
+                <span class="post-intro-time">2018/06/24</span>
+                
+                <span id="busuanzi_container_page_pv" class="busuanzi-pv">
+                    <span class="iconfont-archer">&#xe602;</span>
+                    <span id="busuanzi_value_page_pv"></span>
+                </span>
+                
+                <span class="shareWrapper">
+                    <span class="iconfont-archer shareIcon">&#xe71d;</span>
+                    <span class="shareText">Share</span>
+                    <ul class="shareList">
+                        <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                            <div class="share-qrcode"></div>
+                        </li>
+                        <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                        <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                        <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                        <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                    </ul>
+                </span>
+            </div>
         
     </div>
 </div>
@@ -295,30 +359,86 @@
 </script>        
         <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
         <div class="container container-unloaded">
-            <main class="main index-page">
+            <main class="main post-page">
+    <article class="article-entry">
+        <hr>
+<p><strong>上一篇我们讲了事务的概念，接下来一起研究下事务在mysql与oracle中的体现。实际上就是三个问题</strong></p>
+<ol>
+<li>如何开启一个事务</li>
+<li>如何在事务中搞事情</li>
+<li>如何结束一个事务</li>
+</ol>
+<h2 id="MYSQL的事务控制"><a href="#MYSQL的事务控制" class="headerlink" title="MYSQL的事务控制"></a>MYSQL的事务控制</h2><h3 id="方式一-：-手动开启事务"><a href="#方式一-：-手动开启事务" class="headerlink" title="方式一 ： 手动开启事务"></a>方式一 ： 手动开启事务</h3><ul>
+<li>begin/start transaction开始一个事务</li>
+<li>rollback事务回滚</li>
+<li>commit 事务确认</li>
+</ul>
+<p>begin或者start transaction可以开始一个事务，这时我们就可以在事务内执行修改读写操作，通过commit或者rollback来结束这个事务。</p>
+<p><code>当一个成功的事务完成后，发出COMMIT命令使所有参与表的更改才会生效。如果发生故障时，应发出一个ROLLBACK命令返回的事务中引用的每一个表到以前的状态。</code></p>
+<h3 id="方式二-：-改变mysql的自动提交模式"><a href="#方式二-：-改变mysql的自动提交模式" class="headerlink" title="方式二 ： 改变mysql的自动提交模式"></a>方式二 ： 改变mysql的自动提交模式</h3><p> mysql默认是自动提交的，也就是你执行一个sql，就直接commit！这也是为什么我们不用提交，就可以看到数据的改变。</p>
+<ul>
+<li>set autocommit = 0 禁止自动提交</li>
+<li>set autocommit = 1 开启自动提交</li>
+<li>rollback事务回滚</li>
+<li>commit 事务确认</li>
+</ul>
+<p>值得注意的是，设置完禁止自动提交一旦，执行sql，则视为开启事务，直到commit或者rollback。如此反复。</p>
+<h2 id="ORACLE的事务控制"><a href="#ORACLE的事务控制" class="headerlink" title="ORACLE的事务控制"></a>ORACLE的事务控制</h2><ul>
+<li><p>Oracle的事务开始：第一条DML操作做为事务开始</p>
+</li>
+<li><p>Oracle的提交事务  </p>
+<ul>
+<li>显示提交：commit  </li>
+<li>隐藏提交：DDL/DCL/exit(sqlplus工具)  </li>
+</ul>
+</li>
+</ul>
+<pre><code>`注意：提交是的从事务开始到事务提交中间的内容，提交到ORCL数据库中的DBF二进制文件  `
+</code></pre><ul>
+<li><p>Oracle的回滚事务  </p>
+<ul>
+<li>显示回滚：rollback  </li>
+<li><p>隐藏回滚：关闭窗口(sqlplus工具)，死机，断电  </p>
+<p><code>注意：回滚到事务开始的地方</code></p>
+</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">oracle可以设置回滚点，比如在事务的一半设置回滚点，当下一半出现问题，可以选择回滚到当前点。</span><br><span class="line">savepoint a;rollback to savepoint a;</span><br><span class="line">提交或回滚后，原来设置的回滚点失效</span><br></pre></td></tr></table></figure>
+
+    </article>
+    <!-- 前后页  -->
+    <ul class="post-paginator">
+        <li class="next">
+            
+                <div class="nextSlogan">Next Post</div>
+                <a href= "/2018/06/25/Transaction Isolation Level/" title= 事务隔离级别 >
+                    <div class="nextTitle">事务隔离级别</div>
+                </a>
+            
+        </li>
+        <li class="previous">
+            
+                <div class="prevSlogan">Previous Post</div>
+                <a href= "/2018/06/21/Transaction-Concept/" title= 事务概念（ACID） >
+                    <div class="prevTitle">事务概念（ACID）</div>
+                </a>
+            
+        </li>
+    </ul>
+    <!-- 评论插件 -->
+    <!-- 来必力City版安装代码 -->
+
+<!-- City版安装代码已完成 -->
     
     
+    <!--PC版-->
+
+    <!--PC版-->
+
+
     
-        <article class="index-post">
-            <a class="abstract-title" href = "/1024/04/20/hello-world/" >
-                
-                    <span>hello world</span>
-            </a>
-            <div class="abstract-content">
-                hello world~
-            </div>
-            <div class="abstract-post-meta">
-                <!-- date  -->
-                <div class="abstract-date">
-                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">1024/04/20</span>
-                </div>
-                <!-- tags  -->
-                
-            </div>
-        </article>
-    
-    <!-- paginator  -->
-    
+    <!-- 评论 -->
 </main>
             <!-- profile -->
             
@@ -391,6 +511,24 @@
 </footer>
     </div>
     <!-- toc -->
+    
+    <div class="toc-wrapper" style=
+    
+
+
+
+
+
+
+
+top:70vh;
+
+    >
+        <div class="toc-catalog">
+            <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+        </div>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#MYSQL的事务控制"><span class="toc-number">1.</span> <span class="toc-text">MYSQL的事务控制</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#方式一-：-手动开启事务"><span class="toc-number">1.1.</span> <span class="toc-text">方式一 ： 手动开启事务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#方式二-：-改变mysql的自动提交模式"><span class="toc-number">1.2.</span> <span class="toc-text">方式二 ： 改变mysql的自动提交模式</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ORACLE的事务控制"><span class="toc-number">2.</span> <span class="toc-text">ORACLE的事务控制</span></a></li></ol>
+    </div>
     
     <div class="back-top iconfont-archer">&#xe639;</div>
     <div class="sidebar sidebar-hide">
@@ -615,6 +753,8 @@ jsonContent:
     
     </div>
     <!-- async load share.js -->
+    
+        <script src="/scripts/share.js" async></script>    
     
     </body>
 </html>

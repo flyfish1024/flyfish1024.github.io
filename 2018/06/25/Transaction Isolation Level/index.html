@@ -10,7 +10,7 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" >
     <meta name="description" content="爱生活，爱java">
-    <title>自序 · flyFish</title>
+    <title>事务隔离级别 · flyFish</title>
     <style type="text/css">
     @font-face {
         font-family: 'Oswald-Regular';
@@ -191,7 +191,7 @@
                 <a href="/" >flyFish&#39;s recorder.</a>
             </div>
             <div class="post-title">
-                <a href="#" class="post-name">自序</a>
+                <a href="#" class="post-name">事务隔离级别</a>
             </div>
     </div>
     
@@ -216,14 +216,14 @@ height:70vh;
     
     <!-- 404页  -->
             
-    <div class="site-intro-img" style="background-image: url(/intro/zixu.jpg)"></div>
+    <div class="site-intro-img" style="background-image: url(/intro/transaction_isolation_level.jpg)"></div>
     <div class="site-intro-placeholder"></div>
     <div class="site-intro-meta">
         <!-- 标题  -->
         <h1 class="intro-title">
             <!-- 主页  -->
             
-            自序
+            事务隔离级别
             <!-- 404 -->
             
         </h1>
@@ -241,13 +241,19 @@ height:70vh;
             
                 <div class= post-intro-tags >
     
-        <a class="post-tag" href="javascript:void(0);" data-tags = "闲扯">闲扯</a>
+        <a class="post-tag" href="javascript:void(0);" data-tags = "transaction">transaction</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "isolation level">isolation level</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "Pessimistic Lock">Pessimistic Lock</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "Optimistic Lock">Optimistic Lock</a>
     
 </div>
             
             <div class="post-intro-meta">
                 <span class="post-intro-calander iconfont-archer">&#xe676;</span>
-                <span class="post-intro-time">2018/04/24</span>
+                <span class="post-intro-time">2018/06/25</span>
                 
                 <span id="busuanzi_container_page_pv" class="busuanzi-pv">
                     <span class="iconfont-archer">&#xe602;</span>
@@ -353,85 +359,134 @@ height:70vh;
         <div class="container container-unloaded">
             <main class="main post-page">
     <article class="article-entry">
-        <p><strong>终于是有了自己的博客，这里写个简单序做个记录，主要回答三个问题</strong></p>
+        <hr>
+<h2 id="并发事务导致的问题"><a href="#并发事务导致的问题" class="headerlink" title="并发事务导致的问题"></a>并发事务导致的问题</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">在许多事务处理同一个数据时，如果没有采取有效的隔离机制，那么并发处理数据时，会带来一些的问题。</span><br></pre></td></tr></table></figure>
 <ul>
-<li>搭建博客的流程</li>
-<li>搭建博客的原因</li>
-<li>博客的具体内容</li>
-</ul>
-<h2 id="流程"><a href="#流程" class="headerlink" title="流程"></a>流程</h2><ul>
-<li><p>hexo init提示无hexo运行环境</p>
+<li><p><strong>第一类丢失更新</strong>：撤销一个事务时，把其他事务已提交的更新数据覆盖。</p>
 <blockquote>
-<p>npm install并不能解决问题，网上也查了很多，原来是node版本过低，各种教程试了十多遍确实很绝望</p>
+<p>小明去银行柜台存钱，他的账户里原来的余额为100元，现在打算存入100元。在他存钱的过程中，银行年费扣了5元，余额只剩95元。突然他又想着这100元要用来请女朋友看电影吃饭，不打算存了。在他撤回存钱操作后，余额依然为他存钱之前的100元。所以那5块钱到底扣了谁的？<br>一个事务回退到最初状态时，覆盖掉期间别的事务对此数据的改变。</p>
 </blockquote>
 </li>
-<li><p>hexo deploy失败，与git连接拒绝</p>
+<li><p><strong>脏读</strong>：一个事务读取到另一个事务未提交的更新数据。</p>
 <blockquote>
-<p>配置git本机与远程的ssh秘钥，可免除部署时的用户登录</p>
-<p>repository设置为 <a href="mailto:`git@github.com" target="_blank" rel="noopener">`git@github.com</a>:flyfish1024/flyfish1024.github.io.git`</p>
+<p>小明的银行卡余额里有100元。现在他打算用手机点一个外卖饮料，需要付款10元。但是这个时候，他的女朋友看中了一件衣服95元，她正在使用小明的银行卡付款。于是小明在付款的时候，程序后台读取到他的余额只有5块钱了，根本不够10元，所以系统拒绝了他的交易，告诉余额不足。但是小明的女朋友最后因为密码错误，无法进行交易。小明非常郁闷，明明银行卡里还有100元，怎么会余额不足呢？（他女朋友更郁闷。。。）<br>95并没有提交，但是程序后台读取到他的余额只有5块钱。</p>
 </blockquote>
 </li>
-<li><p>hexo init所在目录不为空</p>
+<li><p><strong>幻读也叫虚读</strong>：一个事务执行两次查询，第二次结果集包含第一次中没有或某些行已经被删除的数据，造成两次结果不一致，只是另一个事务在这两次查询中间插入或删除了数据造成的。</p>
 <blockquote>
-<p><code>init</code>要在空目录，之后再<code>npm install</code>即可</p>
+<p>公司财务A在进行员工薪资核算业务，需要对小明的工资进行计算并录入系统，必须查询两次明细信息，然后将后一次的明细信息计算总数出来。财务在第一次明细查询时，基本工资2000元，全勤奖1000元，提成2000元，共计5000元。在进行第二次计算时，财务B突然接到通知，需要把下个月的节日福利也在这个月的工资中发放，每人100元。于是财务B在每个人的工资明细中又加了一条节日福利100元。而此时财务A获得第二次查询小明的工资明细后，发现工资明细变成了4条数据，总数是5100元。两次计算结果相差100元，财务A奇怪这多出来的一条明细100元是哪里来的呢？（都怪财务B不告诉A。。。）<br>事务一两次执行同一查询，期间数据被事务二insert或者delete。</p>
 </blockquote>
 </li>
-</ul>
-<h2 id="原因"><a href="#原因" class="headerlink" title="原因"></a>原因</h2><ul>
-<li>导火索<blockquote>
-<p><a href="http://YandaZhao.github.io" title=" YandaZhao" target="_blank" rel="noopener">同事</a>：诶，<del>你们没事可以看看我的博客</del>(快看我有博客啦NB不)</p>
+<li><p><strong>不可重复读</strong>：一个事务两次读取同一行的数据，结果得到不同状态的结果，中间正好另一个事务更新了该数据，两次结果相异，不可被信任。</p>
+<blockquote>
+<p>小明在手机上购买起购价为1W元理财产品。系统首先要判断他的余额够不够购买理财产品，如果足够再获取当前的余额，进行申请。系统第一次读取到小明的余额还剩1W元，刚好足够购买产品。但是这个时候刚好他女朋友又看中了一个包包5000元，这次密码终于不会再错误的女朋友毫不犹豫刷了小明的银行卡买下了这个包包。但是这个系统刚好在进行第二次确认，发现小明的余额上只有5000元，根本不够购买。于是系统很生气，拒绝了小明的购买行为，告诉他，你真是个骗子！！！<br> 事务一两次执行同一查询，期间数据被事务二update。</p>
 </blockquote>
 </li>
-<li><p>直接原因</p>
+<li><p><strong>第二类丢失更新</strong>：是不可重复读的特殊情况。如果两个事物都读取同一行，然后两个都进行写操作，并提交，第一个事物所做的改变就会丢失。</p>
 <blockquote>
-<p>客观来说，现在的自己还是个java小菜鸡儿，挺需要一个平行线来陪伴自己的成长，系统的强化自己的能力。</p>
-<p>其次，也是想为中国it圈贡献自己的一份薄弱的力量，我的目标又不只是money，大家一起学习技术，一起前进，挺好的。</p>
-</blockquote>
-<blockquote>
-<p>再其次，我也可以，诶，你们没事可以看看我的Blog~</p>
-</blockquote>
-</li>
-<li>重要性<blockquote>
-<p>我喜欢将一些东西<strong>记录</strong>下来，不是用神经元的那种~</p>
+<p>小明和女朋友一起去逛街。女朋友看中了一支口红，（对，女朋友就是用来表现买买买的）小明大方的掏出了自己的银行卡，告诉女朋友：亲爱的，随便刷，随便买，我坐着等你。然后小明就坐在商城座椅上玩手机，等着女朋友。这个时候，程序员的聊天群里有人推荐了一本书，小明一看，哎呀，真是本好书，还是限量发行呢，我一定更要买到。于是小明赶紧找到购买渠道，进行付款操作。而同时，小明的女朋友也在不亦乐乎的买买买，他们同时进行了一笔交易操作，但是这个时候银行系统出了问题，当他们都付款成功后，却发现，银行只扣了小明的买书钱，却没有扣去女朋友此时交易的钱。哈哈哈，小明真是太开心了！<br>两个事务一起写，先写的把后写的覆盖。</p>
 </blockquote>
 </li>
 </ul>
-<h2 id="内容"><a href="#内容" class="headerlink" title="内容"></a>内容</h2><ul>
-<li>java<blockquote>
-<p>上至服务器框架下至虚拟机内存，我应该会在这条路上越走越远</p>
-</blockquote>
+<h2 id="并发事务问题的避免"><a href="#并发事务问题的避免" class="headerlink" title="并发事务问题的避免"></a>并发事务问题的避免</h2><h3 id="隔离级别"><a href="#隔离级别" class="headerlink" title="隔离级别"></a>隔离级别</h3><p>上面几种情况并不是一定都要避免的，具体看你的业务要求，包括你数据库的负载都会影响你的决定。不知道大家发现没有，上面各种异常情况都是多个事务之间相互影响造成的，这说明两个事务之间需要某种方式将他们从某种程度上分开，降低直至避免相互影响。这时候数据库事务隔离级别就粉墨登场了，而数据库的隔离级别实现一般是通过数据库锁实现的。</p>
+<p>SQL标准规定了四个隔离水平：</p>
+<ul>
+<li>READ_UNCOMMITTED</li>
+<li>READ_COMMITTED</li>
+<li>REPETABLE_READ</li>
+<li>SERIALIZABLE</li>
+</ul>
+<p>• <strong>Serializable(串行化)</strong>：一个事务在执行过程中完全看不到其他事务对数据库所做的更新。<br>• <strong>Repeatable Read(可重复读)</strong>：一个事务在执行过程中可以看到其他事务已经提交的新插入的记录，但是不能看到其他事务对已有记录的更新。<br>• <strong>Read Commited（读已提交数据）</strong>：一个事务在执行过程中可以看到其他事务已经提交的新插入的记录，而且能看到<code>其他事务已经提交的对已有记录的更新(可避免第一类丢失更新)</code><br>• <strong>Read Uncomitted（读未提交数据）</strong>：一个事务在执行过程中可以拷打其他事务没有提交的新插入的记录，而且能看到其他事务没有提交的对已有记录的更新。</p>
+<h4 id="下面是各种隔离级别对各异常的控制能力："><a href="#下面是各种隔离级别对各异常的控制能力：" class="headerlink" title="下面是各种隔离级别对各异常的控制能力："></a><strong>下面是各种隔离级别对各异常的控制能力：</strong></h4><table>
+<thead>
+<tr>
+<th>级别\异常</th>
+<th>第一类更新丢失</th>
+<th>脏读</th>
+<th>不可重复读</th>
+<th>第二类丢失更新</th>
+<th>幻读</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>读未提交</td>
+<td>Y</td>
+<td>Y</td>
+<td>Y</td>
+<td>Y</td>
+<td>Y</td>
+</tr>
+<tr>
+<td>读已提交</td>
+<td>N</td>
+<td>N</td>
+<td>Y</td>
+<td>Y</td>
+<td>Y</td>
+</tr>
+<tr>
+<td>可重复读</td>
+<td>N</td>
+<td>N</td>
+<td>N</td>
+<td>N</td>
+<td>Y</td>
+</tr>
+<tr>
+<td>读已提交</td>
+<td>N</td>
+<td>N</td>
+<td>Y</td>
+<td>Y</td>
+<td>Y</td>
+</tr>
+<tr>
+<td>串行化</td>
+<td>N</td>
+<td>N</td>
+<td>N</td>
+<td>N</td>
+<td>N</td>
+</tr>
+</tbody>
+</table>
+<p>Mysql，Oracle，SQL Server的默认隔离级别都为 Read Commited。<br>隔离级别越高，效率越低，一般不会将整个数据库的隔离级别设高，根据需求，使用锁机制。</p>
+<h3 id="数据库锁分类"><a href="#数据库锁分类" class="headerlink" title="数据库锁分类"></a>数据库锁分类</h3><p>一般可以分为两类，一个是悲观锁，一个是乐观锁，悲观锁一般就是我们通常说的数据库锁机制，乐观锁一般是指用户自己实现的一种锁机制，比如hibernate实现的乐观锁甚至编程语言也有乐观锁的思想的应用。</p>
+<p><strong>悲观锁</strong>：顾名思义，就是很悲观，它对于数据被外界修改持保守态度，认为数据随时会修改，所以整个数据处理中需要将数据加锁。悲观锁一般都是依靠关系数据库提供的锁机制，事实上关系数据库中的行锁，表锁不论是读写锁都是悲观锁。</p>
+<h4 id="悲观锁按照使用性质划分："><a href="#悲观锁按照使用性质划分：" class="headerlink" title="悲观锁按照使用性质划分："></a>悲观锁按照使用性质划分：</h4><ul>
+<li><p><strong>共享锁（Share locks简记为S锁）</strong>：也称读锁，事务A对对象T加s锁，其他事务也只能对T加S，多个事务可以同时读，但不能有写操作，直到A释放S锁。</p>
 </li>
-<li>js<blockquote>
-<p>各种优秀的js框架，js的扩展性让人感受到自由和无限的可能</p>
-</blockquote>
+<li><p><strong>排它锁（Exclusivelocks简记为X锁）</strong>：也称写锁，事务A对对象T加X锁以后，其他事务不能对T加任何锁，只有事务A可以读写对象T直到A释放X锁。</p>
 </li>
-<li>后台页面框架<blockquote>
-<p>计划是成为一名优秀的java后台工程师，掉渣的前端能力估计离不开这个了</p>
-</blockquote>
-</li>
-<li>一些前沿的技术<blockquote>
-<p>浅尝一些新的的东西，多接触，多见识总是好的，保持一颗青春的心 0.o</p>
-</blockquote>
+<li><p><strong>更新锁（简记为U锁）</strong>：用来预定要对此对象施加X锁，它允许其他事务读，但不允许再施加U锁或X锁；当被读取的对象将要被更新时，则升级为X锁，主要是用来防止死锁的。因为使用共享锁时，修改数据的操作分为两步，首先获得一个共享锁，读取数据，然后将共享锁升级为排它锁，然后再执行修改操作。这样如果同时有两个或多个事务同时对一个对象申请了共享锁，在修改数据的时候，这些事务都要将共享锁升级为排它锁。这些事务都不会释放共享锁而是一直等待对方释放，这样就造成了死锁。如果一个数据在修改前直接申请更新锁，在数据修改的时候再升级为排它锁，就可以避免死锁。</p>
 </li>
 </ul>
-<p>最后，<code>HELLO FLYFISH&#39;s RECORDER</code></p>
+<h4 id="悲观锁按照作用范围划分："><a href="#悲观锁按照作用范围划分：" class="headerlink" title="悲观锁按照作用范围划分："></a>悲观锁按照作用范围划分：</h4><ul>
+<li><strong>行锁</strong>：锁的作用范围是行级别，数据库能够确定那些行需要锁的情况下使用行锁，如果不知道会影响哪些行的时候就会使用表锁。举个例子，一个用户表user，有主键id和用户生日birthday，当你使用update … where id=?这样的语句数据库明确知道会影响哪一行，它就会使用行锁，当你使用update … where birthday=?这样的的语句的时候因为事先不知道会影响哪些行就可能会使用表锁。</li>
+<li><strong>表锁</strong>：锁的作用范围是整张表。</li>
+</ul>
+<p><strong>乐观锁</strong>：顾名思义，就是很乐观，每次自己操作数据的时候认为没有人回来修改它，所以不去加锁，但是在更新的时候会去判断在此期间数据有没有被修改，需要用户自己去实现。既然都有数据库提供的悲观锁可以方便使用为什么要使用乐观锁呢？对于读操作远多于写操作的时候，大多数都是读取，这时候一个更新操作加锁会阻塞所有读取，降低了吞吐量。最后还要释放锁，锁是需要一些开销的，我们只要想办法解决极少量的更新操作的同步问题。换句话说，如果是读写比例差距不是非常大或者你的系统没有响应不及时，吞吐量瓶颈问题，那就不要去使用乐观锁，它增加了复杂度，也带来了额外的风险。</p>
+<h4 id="乐观锁实现方式："><a href="#乐观锁实现方式：" class="headerlink" title="乐观锁实现方式："></a><strong>乐观锁实现方式：</strong></h4><ul>
+<li><strong>版本号（记为version）</strong>：就是给数据增加一个版本标识，在数据库上就是表中增加一个version字段，每次更新把这个字段加1，读取数据的时候把version读出来，更新的时候比较version，如果还是开始读取的version就可以更新了，如果现在的version比老的version大，说明有其他事务更新了该数据，并增加了版本号，这时候得到一个无法更新的通知，用户自行根据这个通知来决定怎么处理，比如重新开始一遍。这里的关键是判断version和更新两个动作需要作为一个原子单元执行，否则在你判断可以更新以后正式更新之前有别的事务修改了version，这个时候你再去更新就可能会覆盖前一个事务做的更新，造成第二类丢失更新，所以你可以使用update … where … and version=”old version”这样的语句，根据返回结果是0还是非0来得到通知，如果是0说明更新没有成功，因为version被改了，如果返回非0说明更新成功。</li>
+<li><strong>时间戳（timestamp）</strong>：和版本号基本一样，只是通过时间戳来判断而已，注意时间戳要使用数据库服务器的时间戳不能是业务系统的时间。</li>
+<li><strong>待更新字段</strong>：和版本号方式相似，只是不增加额外字段，直接使用有效数据字段做版本控制信息，因为有时候我们可能无法改变旧系统的数据库表结构。假设有个待更新字段叫count,先去读取这个count,更新的时候去比较数据库中count的值是不是我期望的值（即开始读的值），如果是就把我修改的count的值更新到该字段，否则更新失败。java的基本类型的原子类型对象如AtomicInteger<a href="**AtomicInteger**是一个提供原子操作的**Integer**类，通过线程安全的方式操作加减。可参考博客[叶长风](https://blog.csdn.net/u012734441/article/details/51619751)">^atomicInteger</a>就是这种思想。</li>
+<li><p><strong>所有字段</strong>：和待更新字段类似，只是使用所有字段做版本控制信息，只有所有字段都没变化才会执行更新。</p>
+<h4 id="乐观锁几种方式的区别："><a href="#乐观锁几种方式的区别：" class="headerlink" title="乐观锁几种方式的区别："></a><strong>乐观锁几种方式的区别：</strong></h4><p>新系统设计可以使用version方式和timestamp方式，需要增加字段，应用范围是整条数据，不论那个字段修改都会更新version,也就是说两个事务更新同一条记录的两个不相关字段也是互斥的，不能同步进行。旧系统不能修改数据库表结构的时候使用数据字段作为版本控制信息，不需要新增字段，待更新字段方式只要其他事务修改的字段和当前事务修改的字段没有重叠就可以同步进行，并发性更高。</p>
+</li>
+</ul>
 
     </article>
     <!-- 前后页  -->
     <ul class="post-paginator">
         <li class="next">
             
-                <div class="nextSlogan">Next Post</div>
-                <a href= "/2018/05/06/ui-tree/" title= Angular ui-tree 使用心得 >
-                    <div class="nextTitle">Angular ui-tree 使用心得</div>
-                </a>
-            
         </li>
         <li class="previous">
             
                 <div class="prevSlogan">Previous Post</div>
-                <a href= "/1024/04/20/hello-world/" title= hello world >
-                    <div class="prevTitle">hello world</div>
+                <a href= "/2018/06/24/Transaction-Database/" title= 数据库的事务控制 >
+                    <div class="prevTitle">数据库的事务控制</div>
                 </a>
             
         </li>
@@ -537,7 +592,7 @@ top:70vh;
         <div class="toc-catalog">
             <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
         </div>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#流程"><span class="toc-number">1.</span> <span class="toc-text">流程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#原因"><span class="toc-number">2.</span> <span class="toc-text">原因</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#内容"><span class="toc-number">3.</span> <span class="toc-text">内容</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#并发事务导致的问题"><span class="toc-number">1.</span> <span class="toc-text">并发事务导致的问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#并发事务问题的避免"><span class="toc-number">2.</span> <span class="toc-text">并发事务问题的避免</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#隔离级别"><span class="toc-number">2.1.</span> <span class="toc-text">隔离级别</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#下面是各种隔离级别对各异常的控制能力："><span class="toc-number">2.1.1.</span> <span class="toc-text">下面是各种隔离级别对各异常的控制能力：</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#数据库锁分类"><span class="toc-number">2.2.</span> <span class="toc-text">数据库锁分类</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#悲观锁按照使用性质划分："><span class="toc-number">2.2.1.</span> <span class="toc-text">悲观锁按照使用性质划分：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#悲观锁按照作用范围划分："><span class="toc-number">2.2.2.</span> <span class="toc-text">悲观锁按照作用范围划分：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#乐观锁实现方式："><span class="toc-number">2.2.3.</span> <span class="toc-text">乐观锁实现方式：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#乐观锁几种方式的区别："><span class="toc-number">2.2.4.</span> <span class="toc-text">乐观锁几种方式的区别：</span></a></li></ol></li></ol></li></ol>
     </div>
     
     <div class="back-top iconfont-archer">&#xe639;</div>
