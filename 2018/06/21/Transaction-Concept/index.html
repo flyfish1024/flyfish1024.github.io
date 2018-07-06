@@ -368,7 +368,7 @@ height:70vh;
 <li>具体应用场景</li>
 </ol>
 <p>第一篇开始↓</p>
-<h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><p>事务机制是可以保证一系列写操作要么全部完成，要么全部不会完成，不会发生只完成一系列中一两个写操作，事务机制缺省<a href="缺省：就是默认，不用设置的默认情况。">^default</a>一般由数据库完成，也可以通过应用程序实现（如Java的JTA等）</p>
+<h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><p>事务机制是可以保证一系列写操作要么全部完成，要么全部不会完成，不会发生只完成一系列中一两个写操作，事务机制缺省<a href="缺省：就是默认，不用设置的默认情况。">^1</a>一般由数据库完成，也可以通过应用程序实现（如Java的JTA等）</p>
 <h2 id="ACID"><a href="#ACID" class="headerlink" title="ACID"></a>ACID</h2><p>一个事务本质上有四个特点ACID，他们分别是：</p>
 <ol>
 <li>Atomicity原子性</li>
@@ -381,7 +381,7 @@ height:70vh;
 <p>一致性有下面特点：</p>
 <ul>
 <li>如果一个操作触发辅助操作（级联，触发器），这些也必须成功，否则交易失败。</li>
-<li>如果系统是由多个节点组成，一致性规定所有的变化必须传播到所有节点（多主复制<a href="浮动IP，实现复杂均衡；如果当前的主服务器挂掉后，会将你后端的从服务器自动转向新的主服务器进行同步复制，不用手工更改同步配置。">^Master_Replication</a>）。如果从站节点是异步更新，那么我们打破一致性规则，系统成为“最终一致性<a href="在分布式系统中，为了确保一致性，会引入类似消息中间件，某个操作可以失败，直到他成功，才会删除这个消息。">^eventual_consistency</a>”。</li>
+<li>如果系统是由多个节点组成，一致性规定所有的变化必须传播到所有节点（多主复制<a href="浮动IP，实现复杂均衡；如果当前的主服务器挂掉后，会将你后端的从服务器自动转向新的主服务器进行同步复制，不用手工更改同步配置。">^2</a>）。如果从站节点是异步更新，那么我们打破一致性规则，系统成为“最终一致性<a href="在分布式系统中，为了确保一致性，会引入类似消息中间件，某个操作可以失败，直到他成功，才会删除这个消息。">^3</a>”。</li>
 <li>一个事务是数据状态的切换，因此，如果事务是并发多个，系统也必须如同串行事务一样操作。</li>
 </ul>
 <p>在现实中，事务系统遭遇并发请求时，这种串行化是有成本的， Amdahl法则描述如下：它是描述序列串行执行和并发之间的关系。</p>
@@ -595,7 +595,52 @@ top:70vh;
     
     
     
-    <div class="total-archive"> Total : 8 </div>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <div class="total-archive"> Total : 11 </div>
     
     <div class="post-archive">
     
@@ -607,7 +652,22 @@ top:70vh;
     
     
         <li class="archive-post-item">
-            <span class="archive-post-date">06/25</span><a class="archive-post-title" href= "/2018/06/25/Transaction Isolation Level/" >事务隔离级别</a>
+            <span class="archive-post-date">07/02</span><a class="archive-post-title" href= "/2018/07/02/problem-june/" >六月问题记录</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/29</span><a class="archive-post-title" href= "/2018/06/29/Transaction-Spring/" >Spring的事务控制</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/27</span><a class="archive-post-title" href= "/2018/06/27/Transaction-Jdbc/" >JDBC的事务控制</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/25</span><a class="archive-post-title" href= "/2018/06/25/Transaction-Isolation Level/" >事务隔离级别</a>
         </li>
     
     
@@ -663,19 +723,19 @@ top:70vh;
     
         <span class="sidebar-tag-name" data-tags="acid"><span class="iconfont-archer">&#xe606;</span>acid</span>
     
-        <span class="sidebar-tag-name" data-tags="isolation level"><span class="iconfont-archer">&#xe606;</span>isolation level</span>
-    
-        <span class="sidebar-tag-name" data-tags="Pessimistic Lock"><span class="iconfont-archer">&#xe606;</span>Pessimistic Lock</span>
-    
-        <span class="sidebar-tag-name" data-tags="Optimistic Lock"><span class="iconfont-archer">&#xe606;</span>Optimistic Lock</span>
-    
         <span class="sidebar-tag-name" data-tags="database"><span class="iconfont-archer">&#xe606;</span>database</span>
     
         <span class="sidebar-tag-name" data-tags="mysql"><span class="iconfont-archer">&#xe606;</span>mysql</span>
     
         <span class="sidebar-tag-name" data-tags="oracle"><span class="iconfont-archer">&#xe606;</span>oracle</span>
     
-        <span class="sidebar-tag-name" data-tags="problem"><span class="iconfont-archer">&#xe606;</span>problem</span>
+        <span class="sidebar-tag-name" data-tags="isolation level"><span class="iconfont-archer">&#xe606;</span>isolation level</span>
+    
+        <span class="sidebar-tag-name" data-tags="Pessimistic Lock"><span class="iconfont-archer">&#xe606;</span>Pessimistic Lock</span>
+    
+        <span class="sidebar-tag-name" data-tags="Optimistic Lock"><span class="iconfont-archer">&#xe606;</span>Optimistic Lock</span>
+    
+        <span class="sidebar-tag-name" data-tags="jdbc"><span class="iconfont-archer">&#xe606;</span>jdbc</span>
     
         <span class="sidebar-tag-name" data-tags="ajax"><span class="iconfont-archer">&#xe606;</span>ajax</span>
     
@@ -684,6 +744,10 @@ top:70vh;
         <span class="sidebar-tag-name" data-tags="angular"><span class="iconfont-archer">&#xe606;</span>angular</span>
     
         <span class="sidebar-tag-name" data-tags="js"><span class="iconfont-archer">&#xe606;</span>js</span>
+    
+        <span class="sidebar-tag-name" data-tags="spring"><span class="iconfont-archer">&#xe606;</span>spring</span>
+    
+        <span class="sidebar-tag-name" data-tags="problem"><span class="iconfont-archer">&#xe606;</span>problem</span>
     
         <span class="sidebar-tag-name" data-tags="闲扯"><span class="iconfont-archer">&#xe606;</span>闲扯</span>
     
