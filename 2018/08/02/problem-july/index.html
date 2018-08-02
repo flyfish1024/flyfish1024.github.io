@@ -10,7 +10,7 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" >
     <meta name="description" content="爱生活，爱java">
-    <title>flyFish</title>
+    <title>七月问题记录 · flyFish</title>
     <style type="text/css">
     @font-face {
         font-family: 'Oswald-Regular';
@@ -65,6 +65,8 @@
 
     <link rel="preload" href= /css/style.css?v=20180317 as="style" onload="this.onload=null;this.rel='stylesheet'">
     <link rel="stylesheet" type="text/css" href= /css/mobile.css?v=20180317 media="(max-width: 980px)"/>
+    
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
         
     <link rel="icon" href= /assets/favicon.ico>
     <script>
@@ -175,12 +177,23 @@
 </head>
 
     
+        <body class="post-body">
+    
     
 <header class="header">
 
     <div class="read-progress"></div>
     <div class="header-sidebar-menu">&#xe775;</div>
     <!-- post页的toggle banner  -->
+    
+    <div class="banner">
+            <div class="blog-title">
+                <a href="/" >flyFish&#39;s recorder.</a>
+            </div>
+            <div class="post-title">
+                <a href="#" class="post-name">七月问题记录</a>
+            </div>
+    </div>
     
     <a class="home-link" href=/>flyFish's recorder.</a>
 </header>
@@ -194,24 +207,67 @@
 
 
 
+height:70vh;
+
 >
     
     <!-- 主页  -->
+    
+    
+    <!-- 404页  -->
             
-    <div class="site-intro-img" style="background-image: url(/)"></div>
+    <div class="site-intro-img" style="background-image: url(/intro/problem-july.jpg)"></div>
     <div class="site-intro-placeholder"></div>
     <div class="site-intro-meta">
         <!-- 标题  -->
         <h1 class="intro-title">
             <!-- 主页  -->
             
+            七月问题记录
+            <!-- 404 -->
+            
         </h1>
         <!-- 副标题 -->
         <p class="intro-subtitle">
             <!-- 主页副标题  -->
             
+            
+            <!-- 404 -->
+            
         </p>
         <!-- 文章页meta -->
+        
+            <!-- 文章页标签  -->
+            
+                <div class= post-intro-tags >
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "problem">problem</a>
+    
+</div>
+            
+            <div class="post-intro-meta">
+                <span class="post-intro-calander iconfont-archer">&#xe676;</span>
+                <span class="post-intro-time">2018/08/02</span>
+                
+                <span id="busuanzi_container_page_pv" class="busuanzi-pv">
+                    <span class="iconfont-archer">&#xe602;</span>
+                    <span id="busuanzi_value_page_pv"></span>
+                </span>
+                
+                <span class="shareWrapper">
+                    <span class="iconfont-archer shareIcon">&#xe71d;</span>
+                    <span class="shareText">Share</span>
+                    <ul class="shareList">
+                        <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                            <div class="share-qrcode"></div>
+                        </li>
+                        <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                        <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                        <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                        <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                    </ul>
+                </span>
+            </div>
         
     </div>
 </div>
@@ -295,42 +351,62 @@
 </script>        
         <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
         <div class="container container-unloaded">
-            <main class="main index-page">
+            <main class="main post-page">
+    <article class="article-entry">
+        <hr>
+<h3 id="org-apache-poi-poifs-filesystem-OfficeXmlFileException-The-supplied-data-appears-to-be-in-the-Office-2007-XML-You-are-calling-the-part-of-POI-that-deals-with-OLE2-Office-Documents-You-need-to-call-a-different-part-of-POI-to-process-this-data-eg-XSSF-instead-of-HSSF"><a href="#org-apache-poi-poifs-filesystem-OfficeXmlFileException-The-supplied-data-appears-to-be-in-the-Office-2007-XML-You-are-calling-the-part-of-POI-that-deals-with-OLE2-Office-Documents-You-need-to-call-a-different-part-of-POI-to-process-this-data-eg-XSSF-instead-of-HSSF" class="headerlink" title="org.apache.poi.poifs.filesystem.OfficeXmlFileException: The supplied data appears to be in the Office 2007+ XML. You are calling the part of POI that deals with OLE2 Office Documents. You need to call a different part of POI to process this data (eg XSSF instead of HSSF)"></a>org.apache.poi.poifs.filesystem.OfficeXmlFileException: The supplied data appears to be in the Office 2007+ XML. You are calling the part of POI that deals with OLE2 Office Documents. You need to call a different part of POI to process this data (eg XSSF instead of HSSF)</h3><p><strong>问题原因</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1. 该错误意思是说，文件中的数据是用Office2007+XML保存的，而现在却调用OLE2 Office文档处理，应该使用POI不同的部分来处理这些数据，比如使用XSSF来代替HSSF。</span><br><span class="line">2. XSSF不能读取Excel2003以前（包括2003）的版本</span><br><span class="line">3. HSSF可以读取2003以前，包括2003</span><br></pre></td></tr></table></figure>
+<p><strong>解决办法</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">a) 判断文档后缀（xls/xlsx），灵活调用HSSF或者XSSF API。</span><br></pre></td></tr></table></figure>
+<h3 id="ASM-ClassReader-failed-to-parse-class-file-后面还会提示可能是因为java-version不匹配，无法读取class"><a href="#ASM-ClassReader-failed-to-parse-class-file-后面还会提示可能是因为java-version不匹配，无法读取class" class="headerlink" title="ASM ClassReader failed to parse class file,后面还会提示可能是因为java version不匹配，无法读取class"></a>ASM ClassReader failed to parse class file,后面还会提示可能是因为java version不匹配，无法读取class</h3><p><strong>问题原因</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">1. Java编译版本，预设编译版本，tomcatjdk版本不一致</span><br><span class="line">2. 要注意tomcat一般与jdk版本一致，也就是7对应7，spring4只支持1.8，spring3对应1.7</span><br></pre></td></tr></table></figure>
+<p><strong>解决办法</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">将pom中 spring版本修改为4.0</span><br></pre></td></tr></table></figure>
+<h3 id="org-mybatis-generator-exception-XMLParserException-XML-Parser-Error-on-line-45-元素类型为-“context”-的内容必须匹配-“-property-plugin-commentGenerator-jdbcConnection-javaTypeResolver-…”"><a href="#org-mybatis-generator-exception-XMLParserException-XML-Parser-Error-on-line-45-元素类型为-“context”-的内容必须匹配-“-property-plugin-commentGenerator-jdbcConnection-javaTypeResolver-…”" class="headerlink" title="org.mybatis.generator.exception.XMLParserException: XML Parser Error on line 45: 元素类型为 “context” 的内容必须匹配 “(property,plugin,commentGenerator?,jdbcConnection,javaTypeResolver?…”"></a>org.mybatis.generator.exception.XMLParserException: XML Parser Error on line 45: 元素类型为 “context” 的内容必须匹配 “(property<em>,plugin</em>,commentGenerator?,jdbcConnection,javaTypeResolver?…”</h3><p><strong>问题原因</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">generatorConfig.xml里面context节点必须按顺序配置</span><br></pre></td></tr></table></figure>
+<p><strong>解决办法</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">按照提示给的顺序调整标签。</span><br></pre></td></tr></table></figure>
+<h3 id="input-val-赋值失败"><a href="#input-val-赋值失败" class="headerlink" title="input val() 赋值失败"></a>input val() 赋值失败</h3><p><strong>问题原因</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hidde=‘true’后无法通过val赋值，可通过attr</span><br></pre></td></tr></table></figure>
+<p><strong>解决办法</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">通过 type=‘hidden’设置隐藏</span><br></pre></td></tr></table></figure>
+<h3 id="Invalid-bound-statement-not-found"><a href="#Invalid-bound-statement-not-found" class="headerlink" title="Invalid bound statement (not found)"></a>Invalid bound statement (not found)</h3><p><strong>问题原因</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">1. 检查xml文件所在package名称是否和Mapper interface所在的包名</span><br><span class="line">2. UserDao的方法在UserDao.xml中没有，然后执行UserDao的方法会报此错误</span><br><span class="line">3. UserDao的方法返回值是List&lt;User&gt;,而select元素没有正确配置ResultMap,或者只配置ResultType!</span><br><span class="line">4. 看下mapper的XML配置路径是否正确</span><br><span class="line">6. 如果你确认没有以上问题,请任意修改下对应的xml文件,比如删除一个空行,保存.问题解决</span><br></pre></td></tr></table></figure>
+<p><strong>解决办法</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">a) xml id与mapper的method大小写错误</span><br><span class="line">b) Xml与mapper的文件名不一致</span><br></pre></td></tr></table></figure>
+<h3 id="无法找到某个Service的Bean，自动注入controller失败"><a href="#无法找到某个Service的Bean，自动注入controller失败" class="headerlink" title="无法找到某个Service的Bean，自动注入controller失败"></a>无法找到某个Service的Bean，自动注入controller失败</h3><p><strong>问题原因</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">未扫描对应包</span><br></pre></td></tr></table></figure>
+<p><strong>解决办法</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">注入时使用了实现类声明，改为接口声明</span><br></pre></td></tr></table></figure>
+
+    </article>
+    <!-- 前后页  -->
+    <ul class="post-paginator">
+        <li class="next">
+            
+        </li>
+        <li class="previous">
+            
+                <div class="prevSlogan">Previous Post</div>
+                <a href= "/2018/07/02/problem-june/" title= 六月问题记录 >
+                    <div class="prevTitle">六月问题记录</div>
+                </a>
+            
+        </li>
+    </ul>
+    <!-- 评论插件 -->
+    <!-- 来必力City版安装代码 -->
+
+<!-- City版安装代码已完成 -->
     
     
+    <!--PC版-->
+
+    <!--PC版-->
+
+
     
-        <article class="index-post">
-            <a class="abstract-title" href = "/2018/06/27/Transaction-Jdbc/" >
-                
-                    <span>JDBC的事务控制</span>
-            </a>
-            <div class="abstract-content">
-                事务系列的第三篇（数据库的事务控制）
-            </div>
-            <div class="abstract-post-meta">
-                <!-- date  -->
-                <div class="abstract-date">
-                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2018/06/27</span>
-                </div>
-                <!-- tags  -->
-                
-                <div class= abstract-tags >
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags = "transaction">transaction</a>
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags = "mysql">mysql</a>
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags = "oracle">oracle</a>
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags = "jdbc">jdbc</a>
-    
-</div>
-                
-            </div>
-        </article>
-    
-    <!-- paginator  -->
-    
+    <!-- 评论 -->
 </main>
             <!-- profile -->
             
@@ -403,6 +479,24 @@
 </footer>
     </div>
     <!-- toc -->
+    
+    <div class="toc-wrapper" style=
+    
+
+
+
+
+
+
+
+top:70vh;
+
+    >
+        <div class="toc-catalog">
+            <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+        </div>
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#org-apache-poi-poifs-filesystem-OfficeXmlFileException-The-supplied-data-appears-to-be-in-the-Office-2007-XML-You-are-calling-the-part-of-POI-that-deals-with-OLE2-Office-Documents-You-need-to-call-a-different-part-of-POI-to-process-this-data-eg-XSSF-instead-of-HSSF"><span class="toc-number">1.</span> <span class="toc-text">org.apache.poi.poifs.filesystem.OfficeXmlFileException: The supplied data appears to be in the Office 2007+ XML. You are calling the part of POI that deals with OLE2 Office Documents. You need to call a different part of POI to process this data (eg XSSF instead of HSSF)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ASM-ClassReader-failed-to-parse-class-file-后面还会提示可能是因为java-version不匹配，无法读取class"><span class="toc-number">2.</span> <span class="toc-text">ASM ClassReader failed to parse class file,后面还会提示可能是因为java version不匹配，无法读取class</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#org-mybatis-generator-exception-XMLParserException-XML-Parser-Error-on-line-45-元素类型为-“context”-的内容必须匹配-“-property-plugin-commentGenerator-jdbcConnection-javaTypeResolver-…”"><span class="toc-number">3.</span> <span class="toc-text">org.mybatis.generator.exception.XMLParserException: XML Parser Error on line 45: 元素类型为 “context” 的内容必须匹配 “(property,plugin,commentGenerator?,jdbcConnection,javaTypeResolver?…”</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#input-val-赋值失败"><span class="toc-number">4.</span> <span class="toc-text">input val() 赋值失败</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Invalid-bound-statement-not-found"><span class="toc-number">5.</span> <span class="toc-text">Invalid bound statement (not found)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#无法找到某个Service的Bean，自动注入controller失败"><span class="toc-number">6.</span> <span class="toc-text">无法找到某个Service的Bean，自动注入controller失败</span></a></li></ol>
+    </div>
     
     <div class="back-top iconfont-archer">&#xe639;</div>
     <div class="sidebar sidebar-hide">
@@ -699,6 +793,8 @@ jsonContent:
     
     </div>
     <!-- async load share.js -->
+    
+        <script src="/scripts/share.js" async></script>    
     
     </body>
 </html>
