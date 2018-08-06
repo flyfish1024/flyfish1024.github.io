@@ -10,7 +10,7 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" >
     <meta name="description" content="爱生活，爱java">
-    <title>flyFish</title>
+    <title>MyBatis  insert时获取自增主键 · flyFish</title>
     <style type="text/css">
     @font-face {
         font-family: 'Oswald-Regular';
@@ -65,6 +65,8 @@
 
     <link rel="preload" href= /css/style.css?v=20180317 as="style" onload="this.onload=null;this.rel='stylesheet'">
     <link rel="stylesheet" type="text/css" href= /css/mobile.css?v=20180317 media="(max-width: 980px)"/>
+    
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
         
     <link rel="icon" href= /assets/favicon.ico>
     <script>
@@ -175,12 +177,23 @@
 </head>
 
     
+        <body class="post-body">
+    
     
 <header class="header">
 
     <div class="read-progress"></div>
     <div class="header-sidebar-menu">&#xe775;</div>
     <!-- post页的toggle banner  -->
+    
+    <div class="banner">
+            <div class="blog-title">
+                <a href="/" >flyFish&#39;s recorder.</a>
+            </div>
+            <div class="post-title">
+                <a href="#" class="post-name">MyBatis  insert时获取自增主键</a>
+            </div>
+    </div>
     
     <a class="home-link" href=/>flyFish's recorder.</a>
 </header>
@@ -194,24 +207,69 @@
 
 
 
+height:70vh;
+
 >
     
     <!-- 主页  -->
+    
+    
+    <!-- 404页  -->
             
-    <div class="site-intro-img" style="background-image: url(/)"></div>
+    <div class="site-intro-img" style="background-image: url(/intro/mybatis_getid.jpg)"></div>
     <div class="site-intro-placeholder"></div>
     <div class="site-intro-meta">
         <!-- 标题  -->
         <h1 class="intro-title">
             <!-- 主页  -->
             
+            MyBatis  insert时获取自增主键
+            <!-- 404 -->
+            
         </h1>
         <!-- 副标题 -->
         <p class="intro-subtitle">
             <!-- 主页副标题  -->
             
+            
+            <!-- 404 -->
+            
         </p>
         <!-- 文章页meta -->
+        
+            <!-- 文章页标签  -->
+            
+                <div class= post-intro-tags >
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "mybatis">mybatis</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "primarykey">primarykey</a>
+    
+</div>
+            
+            <div class="post-intro-meta">
+                <span class="post-intro-calander iconfont-archer">&#xe676;</span>
+                <span class="post-intro-time">2018/08/06</span>
+                
+                <span id="busuanzi_container_page_pv" class="busuanzi-pv">
+                    <span class="iconfont-archer">&#xe602;</span>
+                    <span id="busuanzi_value_page_pv"></span>
+                </span>
+                
+                <span class="shareWrapper">
+                    <span class="iconfont-archer shareIcon">&#xe71d;</span>
+                    <span class="shareText">Share</span>
+                    <ul class="shareList">
+                        <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                            <div class="share-qrcode"></div>
+                        </li>
+                        <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                        <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                        <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                        <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                    </ul>
+                </span>
+            </div>
         
     </div>
 </div>
@@ -295,30 +353,58 @@
 </script>        
         <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
         <div class="container container-unloaded">
-            <main class="main index-page">
+            <main class="main post-page">
+    <article class="article-entry">
+        <hr>
+<ol>
+<li>设置insert标签属性<code>useGeneratedKeys</code></li>
+<li>sql语句插入新标签<code>&lt;selectKey&gt;</code></li>
+<li>手动生成唯一主键</li>
+</ol>
+<h2 id="方法一：设置insert标签属性useGeneratedKeys"><a href="#方法一：设置insert标签属性useGeneratedKeys" class="headerlink" title="方法一：设置insert标签属性useGeneratedKeys"></a>方法一：设置insert标签属性<code>useGeneratedKeys</code></h2><p>在mapper.xml中为inser添加两个属性：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">insert</span> <span class="attr">id</span>=<span class="string">"insert"</span> <span class="attr">useGeneratedKeys</span>=<span class="string">"true"</span> <span class="attr">keyProperty</span>=<span class="string">"nId"</span> <span class="attr">parameterType</span>=<span class="string">"cn.xxx.xxx.User"</span>&gt;</span></span><br><span class="line">	insert ...</span><br><span class="line"><span class="tag">&lt;/<span class="name">insert</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p><strong>keyProperty：指明主键</strong><br><strong>useGeneratedKeys：启用jdbc自增机制，并将数据赋值给主键</strong></p>
+<p>当调用完<code>insert</code>之后，传入的User对象的id属性已经自动赋值。可通过get方法获取新的主键。</p>
+<blockquote>
+<p>注：此种方法不适用oracle</p>
+</blockquote>
+<h2 id="方法二：sql语句加入新标签-lt-selectKey-gt"><a href="#方法二：sql语句加入新标签-lt-selectKey-gt" class="headerlink" title="方法二：sql语句加入新标签&lt;selectKey&gt;"></a>方法二：sql语句加入新标签<code>&lt;selectKey&gt;</code></h2><p>在mapper.xml中为<code>insert</code>内的sql语句前加入<code>selectKey</code>标签</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- mysql,order为AFTER --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">insert</span> <span class="attr">id</span>=<span class="string">"insert"</span> <span class="attr">parameterType</span>=<span class="string">"cn.xxx.xxx.User"</span> &gt;</span> </span><br><span class="line">	<span class="tag">&lt;<span class="name">selectKey</span> <span class="attr">keyProperty</span>=<span class="string">"nId"</span> <span class="attr">resultType</span>=<span class="string">"java.lang.Long"</span>  <span class="attr">order</span>=<span class="string">"AFTER"</span>&gt;</span></span><br><span class="line">		SELECT LAST_INSERT_ID()</span><br><span class="line">	<span class="tag">&lt;/<span class="name">selectKey</span>&gt;</span> </span><br><span class="line">	insert into User(id, name, age) values(#&#123;id&#125;, #&#123;name&#125;, #&#123;age&#125;) </span><br><span class="line"><span class="tag">&lt;/<span class="name">insert</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!-- oracle,order为BEFORE --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">insert</span> <span class="attr">id</span>=<span class="string">"insert"</span> <span class="attr">parameterType</span>=<span class="string">"cn.xxx.xxx.User"</span> &gt;</span> </span><br><span class="line">	<span class="tag">&lt;<span class="name">selectKey</span> <span class="attr">keyProperty</span>=<span class="string">"nId"</span> <span class="attr">resultType</span>=<span class="string">"java.lang.Long"</span>  <span class="attr">order</span>=<span class="string">"AFTER"</span>&gt;</span></span><br><span class="line">		select user_seq.nextval from dual</span><br><span class="line">	<span class="tag">&lt;/<span class="name">selectKey</span>&gt;</span> </span><br><span class="line">	insert into User(id, name, age) values(#&#123;id&#125;, #&#123;name&#125;, #&#123;age&#125;) </span><br><span class="line"><span class="tag">&lt;/<span class="name">insert</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p><strong>LAST_INSERT_ID()</strong>：MYSQL中获取最新的增长id<br><strong>user_seq.nextval</strong>：序列自增，并返回新值<br><strong>order=”AFTER”</strong>：如果设置为 BEFORE,那么它会首先选择主键,设置 keyProperty 然后执行插入语句。如果设置为 AFTER,那么先执行插入语句,然后是 selectKey 元素，这也是上面mysql与oracle的区别。</p>
+<h2 id="方法三：手动生成唯一主键"><a href="#方法三：手动生成唯一主键" class="headerlink" title="方法三：手动生成唯一主键"></a>方法三：手动生成唯一主键</h2><p>这个网上有许多工具类，我这里贴个自己在用的。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UUID</span> </span>&#123;</span><br><span class="line">	<span class="comment">//机器码</span></span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String machineNum = SysSetting.sys_machineNum;</span><br><span class="line">    <span class="comment">/** The FieldPosition. */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> FieldPosition HELPER_POSITION = <span class="keyword">new</span> FieldPosition(<span class="number">0</span>);</span><br><span class="line"> </span><br><span class="line">    <span class="comment">/** This Format for format the data to special format. */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">static</span> Format dateFormat = <span class="keyword">new</span> SimpleDateFormat(<span class="string">"yyMMddHHmmssS"</span>);</span><br><span class="line"> </span><br><span class="line">    <span class="comment">/** This Format for format the number to special format. */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">static</span> NumberFormat numberFormat = <span class="keyword">new</span> DecimalFormat(<span class="string">"00"</span>);</span><br><span class="line"> </span><br><span class="line">    <span class="comment">/** This int is the sequence number ,the default value is 0. */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">int</span> seq = <span class="number">0</span>;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> MAX = <span class="number">99</span>;</span><br><span class="line">    </span><br><span class="line">	 <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 时间格式生成序列</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> String</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">synchronized</span> String <span class="title">generateSequenceNo</span><span class="params">()</span> </span>&#123;</span><br><span class="line"> </span><br><span class="line">        Calendar rightNow = Calendar.getInstance();</span><br><span class="line"> </span><br><span class="line">        StringBuffer sb = <span class="keyword">new</span> StringBuffer();</span><br><span class="line"> </span><br><span class="line">        dateFormat.format(rightNow.getTime(), sb, HELPER_POSITION);</span><br><span class="line">        numberFormat.format(seq, sb, HELPER_POSITION);</span><br><span class="line"> </span><br><span class="line">        <span class="keyword">if</span> (seq == MAX) &#123;</span><br><span class="line">            seq = <span class="number">0</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            seq++;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> machineNum + sb.toString();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>有疑问与瑕疵请联系我~</p>
+</blockquote>
+
+    </article>
+    <!-- 前后页  -->
+    <ul class="post-paginator">
+        <li class="next">
+            
+        </li>
+        <li class="previous">
+            
+                <div class="prevSlogan">Previous Post</div>
+                <a href= "/2018/08/02/problem-july/" title= 七月问题记录 >
+                    <div class="prevTitle">七月问题记录</div>
+                </a>
+            
+        </li>
+    </ul>
+    <!-- 评论插件 -->
+    <!-- 来必力City版安装代码 -->
+
+<!-- City版安装代码已完成 -->
     
     
+    <!--PC版-->
+
+    <!--PC版-->
+
+
     
-        <article class="index-post">
-            <a class="abstract-title" href = "/1024/04/20/hello-world/" >
-                
-                    <span>hello world</span>
-            </a>
-            <div class="abstract-content">
-                hello world~
-            </div>
-            <div class="abstract-post-meta">
-                <!-- date  -->
-                <div class="abstract-date">
-                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">1024/04/20</span>
-                </div>
-                <!-- tags  -->
-                
-            </div>
-        </article>
-    
-    <!-- paginator  -->
-    
+    <!-- 评论 -->
 </main>
             <!-- profile -->
             
@@ -391,6 +477,24 @@
 </footer>
     </div>
     <!-- toc -->
+    
+    <div class="toc-wrapper" style=
+    
+
+
+
+
+
+
+
+top:70vh;
+
+    >
+        <div class="toc-catalog">
+            <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+        </div>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#方法一：设置insert标签属性useGeneratedKeys"><span class="toc-number">1.</span> <span class="toc-text">方法一：设置insert标签属性useGeneratedKeys</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#方法二：sql语句加入新标签-lt-selectKey-gt"><span class="toc-number">2.</span> <span class="toc-text">方法二：sql语句加入新标签&lt;selectKey&gt;</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#方法三：手动生成唯一主键"><span class="toc-number">3.</span> <span class="toc-text">方法三：手动生成唯一主键</span></a></li></ol>
+    </div>
     
     <div class="back-top iconfont-archer">&#xe639;</div>
     <div class="sidebar sidebar-hide">
@@ -719,6 +823,8 @@ jsonContent:
     
     </div>
     <!-- async load share.js -->
+    
+        <script src="/scripts/share.js" async></script>    
     
     </body>
 </html>
