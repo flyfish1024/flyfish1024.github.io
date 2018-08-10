@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html>
+    <!-- title -->
+
+
+
+
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" >
+    <meta name="description" content="爱生活，爱java">
+    <title>Excel导出，导入（POI） · flyFish</title>
+    <style type="text/css">
+    @font-face {
+        font-family: 'Oswald-Regular';
+        src: url("/font/Oswald-Regular.ttf");
+    }
+
+    body {
+        margin: 0;
+    }
+
+    header,
+    footer,
+    .back-top,
+    .sidebar,
+    .container,
+    .site-intro-meta,
+    .toc-wrapper {
+        display: none;
+    }
+
+    .site-intro {
+        position: relative;
+        z-index: 3;
+        width: 100%;
+        /* height: 50vh; */
+        overflow: hidden;
+    }
+
+    .site-intro-placeholder {
+        position: absolute;
+        z-index: -2;
+        top: 0;
+        left: 0;
+        width: calc(100% + 300px);
+        height: 100%;
+        background: repeating-linear-gradient(-45deg, #444 0, #444 80px, #333 80px, #333 160px);
+        background-position: center center;
+        transform: translate3d(-226px, 0, 0);
+        animation: gradient-move 2.5s ease-out 0s 1;
+    }
+
+    @keyframes gradient-move {
+        0% {
+            transform: translate3d(-226px, 0, 0);
+        }
+        100% {
+            transform: translate3d(0, 0, 0);
+        }
+    }
+
+</style>
+
+    <link rel="preload" href= /css/style.css?v=20180317 as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="stylesheet" type="text/css" href= /css/mobile.css?v=20180317 media="(max-width: 980px)"/>
+    
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        
+    <link rel="icon" href= /assets/favicon.ico>
+    <script>
+        (function (w) {
+            "use strict";
+            // rel=preload support test
+            if (!w.loadCSS) {
+                w.loadCSS = function () { };
+            }
+            // define on the loadCSS obj
+            var rp = loadCSS.relpreload = {};
+            // rel=preload feature support test
+            // runs once and returns a function for compat purposes
+            rp.support = (function () {
+                var ret;
+                try {
+                    ret = w.document.createElement("link").relList.supports("preload");
+                } catch (e) {
+                    ret = false;
+                }
+                return function () {
+                    return ret;
+                };
+            })();
+
+            // if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+            // then change that media back to its intended value on load
+            rp.bindMediaToggle = function (link) {
+                // remember existing media attr for ultimate state, or default to 'all'
+                var finalMedia = link.media || "all";
+
+                function enableStylesheet() {
+                    link.media = finalMedia;
+                }
+
+                // bind load handlers to enable media
+                if (link.addEventListener) {
+                    link.addEventListener("load", enableStylesheet);
+                } else if (link.attachEvent) {
+                    link.attachEvent("onload", enableStylesheet);
+                }
+
+                // Set rel and non-applicable media type to start an async request
+                // note: timeout allows this to happen async to let rendering continue in IE
+                setTimeout(function () {
+                    link.rel = "stylesheet";
+                    link.media = "only x";
+                });
+                // also enable media after 3 seconds,
+                // which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+                setTimeout(enableStylesheet, 3000);
+            };
+
+            // loop through link elements in DOM
+            rp.poly = function () {
+                // double check this to prevent external calls from running
+                if (rp.support()) {
+                    return;
+                }
+                var links = w.document.getElementsByTagName("link");
+                for (var i = 0; i < links.length; i++) {
+                    var link = links[i];
+                    // qualify links to those with rel=preload and as=style attrs
+                    if (link.rel === "preload" && link.getAttribute("as") === "style" && !link.getAttribute("data-loadcss")) {
+                        // prevent rerunning on link
+                        link.setAttribute("data-loadcss", true);
+                        // bind listeners to toggle media back
+                        rp.bindMediaToggle(link);
+                    }
+                }
+            };
+
+            // if unsupported, run the polyfill
+            if (!rp.support()) {
+                // run once at least
+                rp.poly();
+
+                // rerun poly on an interval until onload
+                var run = w.setInterval(rp.poly, 500);
+                if (w.addEventListener) {
+                    w.addEventListener("load", function () {
+                        rp.poly();
+                        w.clearInterval(run);
+                    });
+                } else if (w.attachEvent) {
+                    w.attachEvent("onload", function () {
+                        rp.poly();
+                        w.clearInterval(run);
+                    });
+                }
+            }
+            // commonjs
+            if (typeof exports !== "undefined") {
+                exports.loadCSS = loadCSS;
+            }
+            else {
+                w.loadCSS = loadCSS;
+            }
+        }(typeof global !== "undefined" ? global : this));
+    </script>
+    <script src="//cdn.staticfile.org/jquery/3.2.1/jquery.min.js" defer></script>
+    <script src="/scripts/main.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js" defer></script>
+    <!-- 百度统计  -->
+    
+    <!-- 谷歌统计  -->
+    
+</head>
+
+    
+        <body class="post-body">
+    
+    
+<header class="header">
+
+    <div class="read-progress"></div>
+    <div class="header-sidebar-menu">&#xe775;</div>
+    <!-- post页的toggle banner  -->
+    
+    <div class="banner">
+            <div class="blog-title">
+                <a href="/" >flyFish&#39;s recorder.</a>
+            </div>
+            <div class="post-title">
+                <a href="#" class="post-name">Excel导出，导入（POI）</a>
+            </div>
+    </div>
+    
+    <a class="home-link" href=/>flyFish's recorder.</a>
+</header>
+    <div class="wrapper">
+        <div class="site-intro" style=
+
+
+
+
+
+
+
+
+height:70vh;
+
+>
+    
+    <!-- 主页  -->
+    
+    
+    <!-- 404页  -->
+            
+    <div class="site-intro-img" style="background-image: url(/intro/plug-poi-excel.jpg)"></div>
+    <div class="site-intro-placeholder"></div>
+    <div class="site-intro-meta">
+        <!-- 标题  -->
+        <h1 class="intro-title">
+            <!-- 主页  -->
+            
+            Excel导出，导入（POI）
+            <!-- 404 -->
+            
+        </h1>
+        <!-- 副标题 -->
+        <p class="intro-subtitle">
+            <!-- 主页副标题  -->
+            
+            
+            <!-- 404 -->
+            
+        </p>
+        <!-- 文章页meta -->
+        
+            <!-- 文章页标签  -->
+            
+                <div class= post-intro-tags >
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "excel">excel</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "poi">poi</a>
+    
+</div>
+            
+            <div class="post-intro-meta">
+                <span class="post-intro-calander iconfont-archer">&#xe676;</span>
+                <span class="post-intro-time">2018/07/09</span>
+                
+                <span id="busuanzi_container_page_pv" class="busuanzi-pv">
+                    <span class="iconfont-archer">&#xe602;</span>
+                    <span id="busuanzi_value_page_pv"></span>
+                </span>
+                
+                <span class="shareWrapper">
+                    <span class="iconfont-archer shareIcon">&#xe71d;</span>
+                    <span class="shareText">Share</span>
+                    <ul class="shareList">
+                        <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                            <div class="share-qrcode"></div>
+                        </li>
+                        <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                        <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                        <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                        <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                    </ul>
+                </span>
+            </div>
+        
+    </div>
+</div>
+        <script>
+  // load webfont-loader async, and add callback function
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+  
+  // get user agent
+  var browser = {
+    versions: function () {
+      var u = window.navigator.userAgent;
+      return {
+        userAgent: u,
+        trident: u.indexOf('Trident') > -1, //IE内核
+        presto: u.indexOf('Presto') > -1, //opera内核
+        webKit: u.indexOf('AppleWebKit') > -1, //苹果、谷歌内核
+        gecko: u.indexOf('Gecko') > -1 && u.indexOf('KHTML') == -1, //火狐内核
+        mobile: !!u.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
+        ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
+        android: u.indexOf('Android') > -1 || u.indexOf('Linux') > -1, //android终端或者uc浏览器
+        iPhone: u.indexOf('iPhone') > -1 || u.indexOf('Mac') > -1, //是否为iPhone或者安卓QQ浏览器
+        iPad: u.indexOf('iPad') > -1, //是否为iPad
+        webApp: u.indexOf('Safari') == -1, //是否为web应用程序，没有头部与底部
+        weixin: u.indexOf('MicroMessenger') == -1, //是否为微信浏览器
+        uc: u.indexOf('UCBrowser') > -1 //是否为android下的UC浏览器
+      };
+    }()
+  }
+  console.log("userAgent:" + browser.versions.userAgent);
+
+  // callback
+  function fontLoaded() {
+    console.log('font loaded');
+    if (document.getElementsByClassName('site-intro-meta')) {
+      document.getElementsByClassName('intro-title')[0].classList.add('intro-fade-in');
+      document.getElementsByClassName('intro-subtitle')[0].classList.add('intro-fade-in');
+      var postIntroTags = document.getElementsByClassName('post-intro-tags')[0],
+        postIntroMeat = document.getElementsByClassName('post-intro-meta')[0];
+      if (postIntroTags) {
+        postIntroTags.classList.add('post-fade-in');
+      }
+      if (postIntroMeat) {
+        postIntroMeat.classList.add('post-fade-in');
+      }
+    }
+  }
+
+  // UC不支持跨域，所以直接显示
+  function asyncCb(){
+    if (browser.versions.uc) {
+      console.log("UCBrowser");
+      fontLoaded();
+    } else {
+      WebFont.load({
+        custom: {
+          families: ['Oswald-Regular']
+        },
+        loading: function () {  //所有字体开始加载
+          // console.log('loading');
+        },
+        active: function () {  //所有字体已渲染
+          fontLoaded();
+        },
+        inactive: function () { //字体预加载失败，无效字体或浏览器不支持加载
+          console.log('inactive: timeout');
+          fontLoaded();
+        },
+        timeout: 5000 // Set the timeout to two seconds
+      });
+    }
+  }
+
+  async("https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js", asyncCb)
+</script>        
+        <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
+        <div class="container container-unloaded">
+            <main class="main post-page">
+    <article class="article-entry">
+        <hr>
+<p>文章结构</p>
+<ul>
+<li>POI概念</li>
+<li>POI组件</li>
+<li>EXCEL(HSSF，XSSF)常用API（略）</li>
+<li>使用场景,代码举例<ul>
+<li>本地加载</li>
+<li>网络加载</li>
+<li>网络输出</li>
+</ul>
+</li>
+<li>注意点</li>
+</ul>
+<p>后台管理经常会用到数据的导入导出，格式一般为Microsoft Excel，这里整理下在本地与web端excel的导入导出使用方法。</p>
+<h2 id="POI概念"><a href="#POI概念" class="headerlink" title="POI概念"></a>POI概念</h2><p>Apache POI是一种流行的API，它允许程序员使用Java程序创建，修改和显示MS Office文件。这由Apache软件基金会开发使用Java分布式设计或修改Microsoft Office文件的开源库。它包含类和方法对用户输入数据或文件到MS Office文档进行解码。.</p>
+<h2 id="Apache-POI组件"><a href="#Apache-POI组件" class="headerlink" title="Apache POI组件"></a>Apache POI组件</h2><p>Apache POI包含类和方法，来将MS Office所有OLE 2文档复合。此API组件的列表如下。</p>
+<ul>
+<li>HSSF   － 提供读写Microsoft Excel XLS格式档案的功能。</li>
+<li>XSSF       － 提供读写Microsoft Excel OOXML XLSX格式档案的功能。</li>
+<li>HWPF － 提供读写Microsoft Word DOC格式档案的功能。</li>
+<li>HSLF   － 提供读写Microsoft PowerPoint格式档案的功能。</li>
+<li>HDGF － 提供读Microsoft Visio格式档案的功能。</li>
+<li>HPBF  － 提供读Microsoft Publisher格式档案的功能。</li>
+<li>HSMF － 提供读Microsoft Outlook格式档案的功能。</li>
+</ul>
+<p>这里我们只介绍HSSF和XSSF。</p>
+<h2 id="EXCEL-HSSF，XSSF-常用API"><a href="#EXCEL-HSSF，XSSF-常用API" class="headerlink" title="EXCEL(HSSF，XSSF)常用API"></a>EXCEL(HSSF，XSSF)常用API</h2><p><strong>先来看一张图</strong><br><img src="../../../../assets/img/poi_excel_interface.png" alt="相关接口"></p>
+<p>可以看出，HSSF与XSSF接口一致，方法类似。<br>这里就不展开写了，列几个比较好的文章。</p>
+<p><a href="http://poi.apache.org/apidocs/index.html" target="_blank" rel="noopener">poi官方文档</a><br><a href="https://blog.csdn.net/qq_21137441/article/details/79226171" target="_blank" rel="noopener">很详细</a><br><a href="https://blog.csdn.net/spp_1987/article/details/13769043" target="_blank" rel="noopener">样式</a></p>
+<h2 id="使用场景-代码举例"><a href="#使用场景-代码举例" class="headerlink" title="使用场景,代码举例"></a>使用场景,代码举例</h2><h3 id="加载本地文件"><a href="#加载本地文件" class="headerlink" title="加载本地文件"></a>加载本地文件</h3><p>读取本地xlsx/xls文件，转化为<code>List&lt;List&lt;String&gt;&gt;</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 本地读取Excel文件</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@author</span> 王飞鱼</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@date</span> 2018年8月9日</span></span><br><span class="line"><span class="comment"> * &lt;description&gt;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ImportExcel</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/*总行数 */</span></span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">int</span> totalRows = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/*总列数 */</span></span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">int</span> totalCells = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/*错误信息 */</span></span><br><span class="line">	<span class="keyword">private</span> String errorInfo;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="title">ImportExcel</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getTotalRows</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		<span class="keyword">return</span> totalRows;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getTotalCells</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		<span class="keyword">return</span> totalCells;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> String <span class="title">getErrorInfo</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		<span class="keyword">return</span> errorInfo;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * </span></span><br><span class="line"><span class="comment">	 * @描述：验证excel文件</span></span><br><span class="line"><span class="comment">	 * @参数：filePath 文件完整路径</span></span><br><span class="line"><span class="comment">	 * @返回值：boolean</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">validateExcel</span><span class="params">(String filePath)</span> </span>&#123;</span><br><span class="line">		<span class="comment">/** 检查文件名是否为空或者是否是Excel格式的文件 */</span></span><br><span class="line">		<span class="keyword">if</span> (filePath == <span class="keyword">null</span> || !(WDWUtil.isExcel2003(filePath) || WDWUtil.isExcel2007(filePath))) &#123;</span><br><span class="line">			errorInfo = <span class="string">"文件名不是excel格式"</span>;</span><br><span class="line">			<span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="comment">/** 检查文件是否存在 */</span></span><br><span class="line">		File file = <span class="keyword">new</span> File(filePath);</span><br><span class="line">		<span class="keyword">if</span> (file == <span class="keyword">null</span> || !file.exists()) &#123;</span><br><span class="line">			errorInfo = <span class="string">"文件不存在"</span>;</span><br><span class="line">			<span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * @描述：根据文件名读取excel文件</span></span><br><span class="line"><span class="comment">	 * @参数：filePath 文件完整路径</span></span><br><span class="line"><span class="comment">	 * @返回值：List</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	<span class="keyword">public</span> List&lt;List&lt;String&gt;&gt; read(String filePath) &#123;</span><br><span class="line">		List&lt;List&lt;String&gt;&gt; dataLst = <span class="keyword">new</span> ArrayList&lt;List&lt;String&gt;&gt;();</span><br><span class="line">		InputStream is = <span class="keyword">null</span>;</span><br><span class="line">		<span class="keyword">try</span> &#123;</span><br><span class="line">			<span class="comment">/** 验证文件是否合法 */</span></span><br><span class="line">			<span class="keyword">if</span> (!validateExcel(filePath)) &#123;</span><br><span class="line">				System.out.println(errorInfo);</span><br><span class="line">				<span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="comment">/** 判断文件的类型，是2003还是2007 */</span></span><br><span class="line">			<span class="keyword">boolean</span> isExcel2003 = <span class="keyword">true</span>;</span><br><span class="line">			<span class="keyword">if</span> (POIUtil.isExcel2007(filePath)) &#123;</span><br><span class="line">				isExcel2003 = <span class="keyword">false</span>;</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="comment">/** 调用本类提供的根据流读取的方法 */</span></span><br><span class="line">			File file = <span class="keyword">new</span> File(filePath);</span><br><span class="line">			is = <span class="keyword">new</span> FileInputStream(file);</span><br><span class="line">			dataLst = read(is, isExcel2003);</span><br><span class="line">			is.close();</span><br><span class="line">		&#125; <span class="keyword">catch</span> (Exception ex) &#123;</span><br><span class="line">			ex.printStackTrace();</span><br><span class="line">		&#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">			<span class="keyword">if</span> (is != <span class="keyword">null</span>) &#123;</span><br><span class="line">				<span class="keyword">try</span> &#123;</span><br><span class="line">					is.close();</span><br><span class="line">				&#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">					is = <span class="keyword">null</span>;</span><br><span class="line">					e.printStackTrace();</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="comment">/** 返回最后读取的结果 */</span></span><br><span class="line">		<span class="keyword">return</span> dataLst;</span><br><span class="line"></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * </span></span><br><span class="line"><span class="comment">	 * @描述：根据流读取Excel文件</span></span><br><span class="line"><span class="comment">	 * @参数：inputStream</span></span><br><span class="line"><span class="comment">	 * @参数：isExcel2003</span></span><br><span class="line"><span class="comment">	 * @返回值：List</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	<span class="keyword">public</span> List&lt;List&lt;String&gt;&gt; read(InputStream inputStream, <span class="keyword">boolean</span> isExcel2003) &#123;</span><br><span class="line">		List&lt;List&lt;String&gt;&gt; dataLst = <span class="keyword">null</span>;</span><br><span class="line">		<span class="keyword">try</span> &#123;</span><br><span class="line">			<span class="comment">/** 根据版本选择创建Workbook的方式 */</span></span><br><span class="line">			Workbook wb = <span class="keyword">null</span>;</span><br><span class="line">			<span class="keyword">if</span> (isExcel2003) &#123;</span><br><span class="line">				wb = <span class="keyword">new</span> HSSFWorkbook(inputStream);</span><br><span class="line">			&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">				wb = <span class="keyword">new</span> XSSFWorkbook(inputStream);</span><br><span class="line">			&#125;</span><br><span class="line">			dataLst = read(wb);</span><br><span class="line">		&#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">			e.printStackTrace();</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">return</span> dataLst;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * </span></span><br><span class="line"><span class="comment">	 * @描述：读取数据</span></span><br><span class="line"><span class="comment">	 * @参数：Workbook</span></span><br><span class="line"><span class="comment">	 * @返回值：List&lt;List&lt;String&gt;&gt;</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	<span class="keyword">private</span> List&lt;List&lt;String&gt;&gt; read(Workbook wb) &#123;</span><br><span class="line">		List&lt;List&lt;String&gt;&gt; dataLst = <span class="keyword">new</span> ArrayList&lt;List&lt;String&gt;&gt;();</span><br><span class="line">		<span class="comment">/* 得到第一个shell */</span></span><br><span class="line">		Sheet sheet = wb.getSheetAt(<span class="number">0</span>);</span><br><span class="line">		<span class="comment">/* 得到Excel的行数 */</span></span><br><span class="line">		<span class="keyword">this</span>.totalRows = sheet.getPhysicalNumberOfRows();</span><br><span class="line">		<span class="comment">/* 得到Excel的列数 */</span></span><br><span class="line">		<span class="keyword">if</span> (<span class="keyword">this</span>.totalRows &gt;= <span class="number">1</span> &amp;&amp; sheet.getRow(<span class="number">0</span>) != <span class="keyword">null</span>) &#123;</span><br><span class="line">			<span class="keyword">this</span>.totalCells = sheet.getRow(<span class="number">0</span>).getPhysicalNumberOfCells();</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="comment">/* 循环Excel的行 */</span></span><br><span class="line">		<span class="keyword">for</span> (<span class="keyword">int</span> r = <span class="number">0</span>; r &lt; <span class="keyword">this</span>.totalRows; r++) &#123;</span><br><span class="line">			Row row = sheet.getRow(r);</span><br><span class="line">			<span class="keyword">if</span> (row == <span class="keyword">null</span>) &#123;</span><br><span class="line">				<span class="keyword">continue</span>;</span><br><span class="line">			&#125;</span><br><span class="line">			List&lt;String&gt; rowLst = <span class="keyword">new</span> ArrayList&lt;String&gt;();</span><br><span class="line">			<span class="comment">/* 循环Excel的列 */</span></span><br><span class="line">			<span class="keyword">for</span> (<span class="keyword">int</span> c = <span class="number">0</span>; c &lt; <span class="keyword">this</span>.getTotalCells(); c++) &#123;</span><br><span class="line">				Cell cell = row.getCell(c);</span><br><span class="line">				String cellValue = <span class="string">""</span>;</span><br><span class="line">				<span class="keyword">if</span> (<span class="keyword">null</span> != cell) &#123;</span><br><span class="line">					<span class="comment">// 以下是判断数据的类型</span></span><br><span class="line">					<span class="keyword">switch</span> (cell.getCellType()) &#123;</span><br><span class="line">					<span class="keyword">case</span> HSSFCell.CELL_TYPE_NUMERIC: <span class="comment">// 数字</span></span><br><span class="line">						cellValue = cell.getNumericCellValue() + <span class="string">""</span>;</span><br><span class="line">						<span class="keyword">break</span>;</span><br><span class="line">					<span class="keyword">case</span> HSSFCell.CELL_TYPE_STRING: <span class="comment">// 字符串</span></span><br><span class="line">						cellValue = cell.getStringCellValue();</span><br><span class="line">						<span class="keyword">break</span>;</span><br><span class="line">					<span class="keyword">case</span> HSSFCell.CELL_TYPE_BOOLEAN: <span class="comment">// Boolean</span></span><br><span class="line">						cellValue = cell.getBooleanCellValue() + <span class="string">""</span>;</span><br><span class="line">						<span class="keyword">break</span>;</span><br><span class="line">					<span class="keyword">case</span> HSSFCell.CELL_TYPE_FORMULA: <span class="comment">// 公式</span></span><br><span class="line">						cellValue = cell.getCellFormula() + <span class="string">""</span>;</span><br><span class="line">						<span class="keyword">break</span>;</span><br><span class="line">					<span class="keyword">case</span> HSSFCell.CELL_TYPE_BLANK: <span class="comment">// 空值</span></span><br><span class="line">						cellValue = <span class="string">""</span>;</span><br><span class="line">						<span class="keyword">break</span>;</span><br><span class="line">					<span class="keyword">case</span> HSSFCell.CELL_TYPE_ERROR: <span class="comment">// 故障</span></span><br><span class="line">						cellValue = <span class="string">"非法字符"</span>;</span><br><span class="line">						<span class="keyword">break</span>;</span><br><span class="line">					<span class="keyword">default</span>:</span><br><span class="line">						cellValue = <span class="string">"未知类型"</span>;</span><br><span class="line">						<span class="keyword">break</span>;</span><br><span class="line">					&#125;</span><br><span class="line">				&#125;</span><br><span class="line">				rowLst.add(cellValue);</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="comment">/** 保存第r行的第c列 */</span></span><br><span class="line">			dataLst.add(rowLst);</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">return</span> dataLst;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">		ImportExcel poi = <span class="keyword">new</span> ImportExcel();</span><br><span class="line">		List&lt;List&lt;String&gt;&gt; list = poi.read(<span class="string">"C:\\test.xlsx"</span>);</span><br><span class="line">		<span class="keyword">if</span> (list != <span class="keyword">null</span>) &#123;</span><br><span class="line">			<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; list.size(); i++) &#123;</span><br><span class="line">				System.out.print(<span class="string">"第"</span> + (i) + <span class="string">"行"</span>);</span><br><span class="line">				List&lt;String&gt; cellList = list.get(i);</span><br><span class="line">				<span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; cellList.size(); j++) &#123;</span><br><span class="line">					<span class="comment">// System.out.print(" 第" + (j + 1) + "列值：");</span></span><br><span class="line">					System.out.print(<span class="string">"    "</span> + cellList.get(j));</span><br><span class="line">				&#125;</span><br><span class="line">				System.out.println();</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment"> * <span class="doctag">@author</span> 王飞鱼</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@date</span> 2018年8月9日</span></span><br><span class="line"><span class="comment"> * &lt;description&gt;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">POIUtil</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * </span></span><br><span class="line"><span class="comment">	 * @描述：是否是2003的excel，返回true是2003</span></span><br><span class="line"><span class="comment">	 * @时间：2012-08-29 下午16:29:11</span></span><br><span class="line"><span class="comment">	 * @参数：filePath 文件完整路径</span></span><br><span class="line"><span class="comment">	 * @返回值：boolean</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">boolean</span> <span class="title">isExcel2003</span><span class="params">(String filePath)</span> </span>&#123;</span><br><span class="line">		<span class="keyword">return</span> filePath.matches(<span class="string">"^.+\\.(?i)(xls)$"</span>);</span><br><span class="line"></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * </span></span><br><span class="line"><span class="comment">	 * @描述：是否是2007的excel，返回true是2007</span></span><br><span class="line"><span class="comment">	 * @时间：2012-08-29 下午16:28:20</span></span><br><span class="line"><span class="comment">	 * @参数：文件完整路径</span></span><br><span class="line"><span class="comment">	 * @返回值：boolean</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">boolean</span> <span class="title">isExcel2007</span><span class="params">(String filePath)</span> </span>&#123;</span><br><span class="line">		<span class="keyword">return</span> filePath.matches(<span class="string">"^.+\\.(?i)(xlsx)$"</span>);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="加载网络文件"><a href="#加载网络文件" class="headerlink" title="加载网络文件"></a>加载网络文件</h3><p>通过input上传文件，ajax提交至后台，后台解析文件，并转化为对应类别的对象集合<code>List&lt;User&gt;</code></p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- jquery --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">form</span> <span class="attr">id</span>=<span class="string">"from1"</span> <span class="attr">action</span>=<span class="string">"$&#123;webroot&#125;/system/sysResource/improtExcel"</span> <span class="attr">method</span>=<span class="string">"post"</span> <span class="attr">enctype</span>=<span class="string">"multipart/form-data"</span> &gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">"file"</span> <span class="attr">id</span>=<span class="string">"uploadFile"</span> <span class="attr">name</span>=<span class="string">"uploadFile"</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">from</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- angular --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">input</span> <span class="attr">id</span>=<span class="string">"uploadFile"</span> <span class="attr">name</span>=<span class="string">"uploadFile"</span> <span class="attr">type</span>=<span class="string">"file"</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//jquery  </span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">importEmp</span>(<span class="params"></span>)</span>&#123;    </span><br><span class="line">    <span class="comment">//检验导入的文件是否为Excel文件     </span></span><br><span class="line">    <span class="keyword">var</span> uploadFile = <span class="built_in">document</span>.getElementById(<span class="string">"uploadFile"</span>).value;    </span><br><span class="line">    <span class="keyword">if</span>(uploadFile == <span class="literal">null</span> || uploadFile == <span class="string">''</span>)&#123;    </span><br><span class="line">        alert(<span class="string">"请选择要上传的Excel文件"</span>);    </span><br><span class="line">        <span class="keyword">return</span>;    </span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;    </span><br><span class="line">        <span class="keyword">var</span> fileExtend = uploadFile.substring(uploadFile.lastIndexOf(<span class="string">'.'</span>)).toLowerCase();     </span><br><span class="line">        <span class="keyword">if</span>(fileExtend == <span class="string">'.xls'</span>)&#123;    </span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;    </span><br><span class="line">            alert(<span class="string">"文件格式需为'.xls'格式"</span>);    </span><br><span class="line">            <span class="keyword">return</span>;    </span><br><span class="line">        &#125;    </span><br><span class="line">    &#125;    </span><br><span class="line">    <span class="comment">//提交表单     </span></span><br><span class="line">    <span class="built_in">document</span>.getElementById(<span class="string">"from1"</span>).submit();    </span><br><span class="line">&#125;   </span><br><span class="line"></span><br><span class="line"><span class="comment">//angular</span></span><br><span class="line">$scope.improtExcel = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;  </span><br><span class="line">  <span class="keyword">var</span> uploadFile=<span class="built_in">document</span>.querySelector(<span class="string">"#uploadFile"</span>).files[<span class="number">0</span>];  </span><br><span class="line">  <span class="comment">//验证  </span></span><br><span class="line">  <span class="keyword">if</span>(uploadFile == <span class="literal">undefined</span>)&#123;  </span><br><span class="line">      alert(<span class="string">"请选择文件！"</span>);  </span><br><span class="line">	  <span class="keyword">return</span>;  </span><br><span class="line">  &#125;  </span><br><span class="line">  <span class="keyword">var</span> size = uploadFile.size / <span class="number">1024</span>;  </span><br><span class="line">  <span class="keyword">if</span>(size&gt;<span class="number">2048</span>)&#123;  </span><br><span class="line">      alert(<span class="string">"附件大小不能大于"</span>+<span class="number">2</span>+<span class="string">"M！"</span>);  </span><br><span class="line">	  <span class="keyword">return</span>;  </span><br><span class="line">  &#125;  </span><br><span class="line">  <span class="keyword">var</span> fileend = uploadFile.name.substring(uploadFile.name.lastIndexOf(<span class="string">"."</span>));  </span><br><span class="line">  <span class="keyword">if</span>(fileend != <span class="string">".xls"</span>)&#123;  </span><br><span class="line">      alert(<span class="string">"请上传97-2003版本Excel！"</span>);  </span><br><span class="line">	  <span class="keyword">return</span>;  </span><br><span class="line">  &#125;  </span><br><span class="line">  </span><br><span class="line">  <span class="comment">//jquery获取$("#uploadFile").prop("files")[0];  </span></span><br><span class="line">  <span class="keyword">var</span> formData = <span class="keyword">new</span> FormData();  </span><br><span class="line">  formData.append(<span class="string">'nPartyId'</span>, groupId);<span class="comment">//其他需要上传的字段 用户所在机构id  </span></span><br><span class="line">  formData.append(<span class="string">'uploadFile'</span>, uploadFile);<span class="comment">//文件  </span></span><br><span class="line">  $http(&#123;  </span><br><span class="line">      url:BASEURL+<span class="string">"/partyGroup/improtExcel"</span>,  </span><br><span class="line">	  method:<span class="string">"post"</span>,  </span><br><span class="line">	  headers: &#123;<span class="string">'Content-Type'</span>: <span class="literal">undefined</span>&#125;,<span class="comment">//使用angular上传一定要加上这一句，不然传给后台的是空的。  </span></span><br><span class="line">	  data: formData,  </span><br><span class="line">  &#125;).success(<span class="function"><span class="keyword">function</span> (<span class="params">resData</span>) </span>&#123;  </span><br><span class="line">      layer.alert(resData.msg);  </span><br><span class="line">	  $scope.getPersonalForGroupId(groupId);  </span><br><span class="line">	  $scope.hideImport();  </span><br><span class="line">  &#125;);  </span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//controller</span></span><br><span class="line"><span class="meta">@RequestMapping</span>(value = <span class="string">"/improtExcel"</span>, method = &#123; RequestMethod.POST &#125;)  </span><br><span class="line"><span class="function"><span class="keyword">public</span> JsonResponse&lt;BaseResult&gt; <span class="title">ImprotExcel</span><span class="params">(@RequestParam(value=<span class="string">"uploadFile"</span>)</span>MultipartFile file,<span class="keyword">int</span> nPartyId) </span>&#123;</span><br><span class="line">	<span class="comment">//自定义返回值类型  </span></span><br><span class="line">	JsonResponse&lt;BaseResult&gt; result = <span class="keyword">new</span> JsonResponse&lt;BaseResult&gt;();</span><br><span class="line">    <span class="keyword">try</span> &#123;  </span><br><span class="line">    	PartyPersonnelImport person = <span class="keyword">new</span> PartyPersonnelImport();</span><br><span class="line">        List&lt;Map&lt;String, Object&gt;&gt; list = ImportExcelUntil.importExcel(file, person); </span><br><span class="line">        <span class="keyword">return</span> partyGroupPersonnelService.ImprotExcel(list,nPartyId);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Exception e) &#123;  </span><br><span class="line">        e.printStackTrace();  </span><br><span class="line">    &#125;  </span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//工具类ImportExcelUntil</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ImportExcelUntil</span></span>&#123;  </span><br><span class="line">  </span><br><span class="line">    <span class="comment">/** </span></span><br><span class="line"><span class="comment">     * 拼装单个obj </span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> obj </span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> row </span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> </span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> Exception </span></span><br><span class="line"><span class="comment">     */</span>  </span><br><span class="line">    <span class="function"><span class="keyword">private</span>  <span class="keyword">static</span>  Map&lt;String, Object&gt;  <span class="title">dataObj</span><span class="params">(Object obj, HSSFRow row)</span> <span class="keyword">throws</span> Exception </span>&#123;  </span><br><span class="line">        Class&lt;?&gt; rowClazz= obj.getClass();   </span><br><span class="line">        <span class="comment">//import org.apache.commons.lang3.reflect.FieldUtils;   </span></span><br><span class="line">        Field[] fields = FieldUtils.getAllFields(rowClazz);  </span><br><span class="line">        <span class="keyword">if</span> (fields == <span class="keyword">null</span> || fields.length &lt; <span class="number">1</span>) &#123;  </span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">null</span>;  </span><br><span class="line">        &#125;  </span><br><span class="line">          </span><br><span class="line">        <span class="comment">//容器  </span></span><br><span class="line">        Map&lt;String, Object&gt; map = <span class="keyword">new</span> HashMap&lt;String, Object&gt;();  </span><br><span class="line">          </span><br><span class="line">        <span class="comment">//注意excel表格字段顺序要和obj字段顺序对齐 （如果有多余字段请另作特殊下标对应处理）  </span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; fields.length; j++) &#123;</span><br><span class="line">            map.put(fields[j].getName(), getVal(row.getCell(j)));  </span><br><span class="line">        &#125;  </span><br><span class="line">        <span class="keyword">return</span> map;   </span><br><span class="line">    &#125;  </span><br><span class="line">      </span><br><span class="line">    <span class="keyword">public</span>  <span class="keyword">static</span>   List&lt;Map&lt;String, Object&gt;&gt; importExcel(MultipartFile file, Object obj) <span class="keyword">throws</span> Exception &#123;  </span><br><span class="line">          </span><br><span class="line">        <span class="comment">//装载流  </span></span><br><span class="line">        POIFSFileSystem fs = <span class="keyword">new</span> POIFSFileSystem(file.getInputStream());  </span><br><span class="line">        HSSFWorkbook hw= <span class="keyword">new</span> HSSFWorkbook(fs);  </span><br><span class="line">          </span><br><span class="line">        <span class="comment">//获取第一个sheet页  </span></span><br><span class="line">        HSSFSheet sheet = hw.getSheetAt(<span class="number">0</span>);  </span><br><span class="line">          </span><br><span class="line">        <span class="comment">//容器  </span></span><br><span class="line">        List&lt;Map&lt;String, Object&gt;&gt; ret = <span class="keyword">new</span> ArrayList&lt;Map&lt;String, Object&gt;&gt;();  </span><br><span class="line">          </span><br><span class="line">        <span class="comment">//遍历行 从第三行开始（去除标题）  </span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">2</span>; i &lt;= sheet.getLastRowNum(); i++) &#123;  </span><br><span class="line">            HSSFRow row= sheet.getRow(i);  </span><br><span class="line">            <span class="keyword">if</span>(row!=<span class="keyword">null</span>)&#123;  </span><br><span class="line">                <span class="comment">//装载obj  </span></span><br><span class="line">                 ret.add(dataObj(obj,row));  </span><br><span class="line">            &#125;  </span><br><span class="line">        &#125;  </span><br><span class="line">        <span class="keyword">return</span> ret;  </span><br><span class="line">    &#125;  </span><br><span class="line">      </span><br><span class="line">    <span class="comment">/** </span></span><br><span class="line"><span class="comment">     * 处理val（暂时只处理string和number，可以自己添加自己需要的val类型） </span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> hssfCell </span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> </span></span><br><span class="line"><span class="comment">     */</span>  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title">getVal</span><span class="params">(HSSFCell hssfCell)</span> </span>&#123;  </span><br><span class="line">        <span class="keyword">if</span> (hssfCell.getCellType() == HSSFCell.CELL_TYPE_STRING) &#123;  </span><br><span class="line">            <span class="keyword">return</span> hssfCell.getStringCellValue();  </span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;  </span><br><span class="line">        	String num = String.valueOf(hssfCell.getNumericCellValue());</span><br><span class="line">        	<span class="keyword">if</span>(num.indexOf(<span class="string">"."</span>) != -<span class="number">1</span>)&#123;</span><br><span class="line">        		num = num.substring(<span class="number">0</span>, num.indexOf(<span class="string">"."</span>));</span><br><span class="line">        	&#125;</span><br><span class="line">            <span class="keyword">return</span> num;  </span><br><span class="line">        &#125;  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="生成网络下载"><a href="#生成网络下载" class="headerlink" title="生成网络下载"></a>生成网络下载</h3><p>创建<code>Workbook</code>，创建<code>sheet</code>，创建行<code>row</code>，创建单元格<code>cell</code>，设置单元格样式<code>CellStyle</code>，单元格赋值<code>setCellValue</code>。设置响应头，以输出流形式传出。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line">List&lt;Map&lt;String , Object&gt;&gt; list = commonSqlService.mapSql(sql);<span class="comment">//总记录</span></span><br><span class="line">	<span class="comment">//生成excel</span></span><br><span class="line">	HSSFWorkbook wb = <span class="keyword">new</span> HSSFWorkbook();  </span><br><span class="line">    HSSFSheet sheet = wb.createSheet(<span class="string">"用户积分记录"</span>);  </span><br><span class="line">    HSSFRow row = sheet.createRow(<span class="number">0</span>);</span><br><span class="line">   	HSSFCellStyle cellStyle = wb.createCellStyle();</span><br><span class="line">   	cellStyle.setAlignment(CellStyle.ALIGN_CENTER);</span><br><span class="line">  	HSSFCell cell = row.createCell(<span class="number">0</span>);</span><br><span class="line">   	HSSFCell cell1 = row.createCell(<span class="number">1</span>);</span><br><span class="line">   	HSSFCell cell2 = row.createCell(<span class="number">2</span>);</span><br><span class="line">   	HSSFCell cell3 = row.createCell(<span class="number">3</span>);</span><br><span class="line">   	HSSFCell cell4 = row.createCell(<span class="number">4</span>);</span><br><span class="line">   	cell.setCellValue(<span class="string">"所属支部"</span>);</span><br><span class="line">   	cell1.setCellValue(<span class="string">"姓名"</span>);</span><br><span class="line">    cell2.setCellValue(<span class="string">"电话"</span>);</span><br><span class="line">    cell3.setCellValue(<span class="string">"积分"</span>);</span><br><span class="line">    cell4.setCellValue(<span class="string">"等级"</span>);</span><br><span class="line">    <span class="keyword">int</span> rowNumCount = <span class="number">1</span>;</span><br><span class="line">  	<span class="keyword">for</span> (Map&lt;String, Object&gt; map : list) &#123;</span><br><span class="line">  		 </span><br><span class="line">  		row = sheet.createRow(rowNumCount++);</span><br><span class="line">  		cell = row.createCell(<span class="number">0</span>);</span><br><span class="line">      	cell1 = row.createCell(<span class="number">1</span>);</span><br><span class="line">      	cell2 = row.createCell(<span class="number">2</span>);</span><br><span class="line">      	cell3 = row.createCell(<span class="number">3</span>);</span><br><span class="line">      	cell4 = row.createCell(<span class="number">4</span>);</span><br><span class="line"></span><br><span class="line">        cell.setCellValue(map.get(<span class="string">"deptName"</span>).toString());</span><br><span class="line">       	cell1.setCellValue(map.get(<span class="string">"vcName"</span>).toString());</span><br><span class="line">       	cell2.setCellValue(map.get(<span class="string">"vcTel"</span>).toString());</span><br><span class="line">       	cell3.setCellValue(map.get(<span class="string">"vcScore"</span>).toString());</span><br><span class="line">       	cell4.setCellValue(map.get(<span class="string">"vcLevelName"</span>).toString());</span><br><span class="line">  	&#125;</span><br><span class="line">    String fileName = <span class="string">"用户积分记录"</span> + <span class="string">".xls"</span>; </span><br><span class="line">    String agent = request.getHeader(<span class="string">"USER-AGENT"</span>).toLowerCase();  </span><br><span class="line">    response.setContentType(<span class="string">"applicationnd.ms-excel"</span>);  </span><br><span class="line">    <span class="comment">//String codedFileName = java.net.URLEncoder.encode(fileName, "UTF-8");  </span></span><br><span class="line">    <span class="keyword">if</span> (agent.contains(<span class="string">"firefox"</span>)) &#123;</span><br><span class="line">	    </span><br><span class="line">        <span class="comment">//火狐浏览器特殊处理  </span></span><br><span class="line">        response.setCharacterEncoding(<span class="string">"utf-8"</span>);  </span><br><span class="line">        response.setHeader(<span class="string">"content-disposition"</span>, <span class="string">"attachment;filename="</span> + <span class="keyword">new</span> String(fileName.getBytes(), <span class="string">"UTF-8"</span>));  </span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">	    response.setHeader(<span class="string">"content-disposition"</span>, <span class="string">"attachment;filename="</span> + fileName);  </span><br><span class="line">    &#125;  </span><br><span class="line">	OutputStream os = response.getOutputStream();  </span><br><span class="line">    wb.write(response.getOutputStream());  </span><br><span class="line">    os.close();  </span><br><span class="line">    wb = <span class="keyword">null</span>;</span><br></pre></td></tr></table></figure></p>
+<h2 id="注意点"><a href="#注意点" class="headerlink" title="注意点"></a>注意点</h2><ul>
+<li>XSSF不能读取Excel2003以前（包括2003）的版本，HSSF能读取97-2003的版本，错误加载会抛出异常</li>
+</ul>
+<blockquote>
+<p>org.apache.poi.poifs.filesystem.OfficeXmlFileException: The supplied data appears to be in the Office 2007+ XML. You are calling the part of POI that deals with OLE2 Office Documents. You need to call a different part of POI to process this data (eg XSSF instead of HSSF)</p>
+</blockquote>
+
+    </article>
+    <!-- 前后页  -->
+    <ul class="post-paginator">
+        <li class="next">
+            
+                <div class="nextSlogan">Next Post</div>
+                <a href= "/2018/08/02/problem-july/" title= 七月问题记录 >
+                    <div class="nextTitle">七月问题记录</div>
+                </a>
+            
+        </li>
+        <li class="previous">
+            
+                <div class="prevSlogan">Previous Post</div>
+                <a href= "/2018/07/02/problem-june/" title= 六月问题记录 >
+                    <div class="prevTitle">六月问题记录</div>
+                </a>
+            
+        </li>
+    </ul>
+    <!-- 评论插件 -->
+    <!-- 来必力City版安装代码 -->
+
+<!-- City版安装代码已完成 -->
+    
+    
+    <!--PC版-->
+
+    <!--PC版-->
+
+
+    
+    <!-- 评论 -->
+</main>
+            <!-- profile -->
+            
+        </div>
+        <footer class="footer footer-unloaded">
+    <!-- social  -->
+    
+    <div class="social">
+        
+    
+        
+            
+                <a href="mailto:463647828@qq.com" class="iconfont-archer email" title=email ></a>
+            
+        
+    
+        
+            
+                <a href="https://github.com/flyfish1024" class="iconfont-archer github" target="_blank" title=github></a>
+            
+        
+    
+        
+            
+                <span class="iconfont-archer wechat" title=wechat>
+                  
+                  <img class="profile-qr" src="/assets/wechat.jpg" />
+                </span>
+            
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+    </div>
+    
+    <!-- powered by Hexo  -->
+    <div class="copyright">
+        <span id="hexo-power">Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span><span class="iconfont-archer power">&#xe635;</span><span id="theme-info">theme <a href="https://github.com/fi3ework/hexo-theme-archer" target="_blank">Archer</a></span>
+    </div>
+    <!-- 不蒜子  -->
+    
+    <div class="busuanzi-container">
+        <span id="busuanzi_container_site_pv">PV: <span id="busuanzi_value_site_pv"></span>
+        </span>
+    </div>
+    
+</footer>
+    </div>
+    <!-- toc -->
+    
+    <div class="toc-wrapper" style=
+    
+
+
+
+
+
+
+
+top:70vh;
+
+    >
+        <div class="toc-catalog">
+            <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+        </div>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#POI概念"><span class="toc-number">1.</span> <span class="toc-text">POI概念</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Apache-POI组件"><span class="toc-number">2.</span> <span class="toc-text">Apache POI组件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#EXCEL-HSSF，XSSF-常用API"><span class="toc-number">3.</span> <span class="toc-text">EXCEL(HSSF，XSSF)常用API</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#使用场景-代码举例"><span class="toc-number">4.</span> <span class="toc-text">使用场景,代码举例</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#加载本地文件"><span class="toc-number">4.1.</span> <span class="toc-text">加载本地文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#加载网络文件"><span class="toc-number">4.2.</span> <span class="toc-text">加载网络文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#生成网络下载"><span class="toc-number">4.3.</span> <span class="toc-text">生成网络下载</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#注意点"><span class="toc-number">5.</span> <span class="toc-text">注意点</span></a></li></ol>
+    </div>
+    
+    <div class="back-top iconfont-archer">&#xe639;</div>
+    <div class="sidebar sidebar-hide">
+    <ul class="sidebar-tabs sidebar-tabs-active-0">
+        <li class="sidebar-tab-archives"><span class="iconfont-archer">&#xe67d;</span><span class="tab-name">Archive</span></li>
+        <li class="sidebar-tab-tags"><span class="iconfont-archer">&#xe61b;</span><span class="tab-name">Tag</span></li>
+        <li class="sidebar-tab-categories"><span class="iconfont-archer">&#xe666;</span><span class="tab-name">Cate</span></li>
+    </ul>
+    <div class="sidebar-content sidebar-content-show-archive">
+          <div class="sidebar-panel-archives">
+    <!-- 在ejs中将archive按照时间排序 -->
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <div class="total-archive"> Total : 14 </div>
+    
+    <div class="post-archive">
+    
+    
+    
+    
+    <div class="archive-year"> 2018 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/06</span><a class="archive-post-title" href= "/2018/08/06/myBatis-getId/" >MyBatis  insert时获取自增主键</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/02</span><a class="archive-post-title" href= "/2018/08/02/problem-july/" >七月问题记录</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/09</span><a class="archive-post-title" href= "/2018/07/09/Plug-poi-excel/" >Excel导出，导入（POI）</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/02</span><a class="archive-post-title" href= "/2018/07/02/problem-june/" >六月问题记录</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/29</span><a class="archive-post-title" href= "/2018/06/29/Transaction-Spring/" >Spring的事务控制</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/27</span><a class="archive-post-title" href= "/2018/06/27/Transaction-Jdbc/" >JDBC的事务控制</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/25</span><a class="archive-post-title" href= "/2018/06/25/Transaction-Isolation Level/" >事务隔离级别</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/24</span><a class="archive-post-title" href= "/2018/06/24/Transaction-Database/" >数据库的事务控制</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/21</span><a class="archive-post-title" href= "/2018/06/21/Transaction-Concept/" >事务概念（ACID）</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/01</span><a class="archive-post-title" href= "/2018/06/01/problem-may/" >五月问题记录</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">05/30</span><a class="archive-post-title" href= "/2018/05/30/ajax/" >Ajax 使用总结</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">05/06</span><a class="archive-post-title" href= "/2018/05/06/ui-tree/" >Angular ui-tree 使用心得</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/24</span><a class="archive-post-title" href= "/2018/04/24/自序/" >自序</a>
+        </li>
+    
+    
+    
+    
+    
+        </ul>
+    
+    <div class="archive-year"> 1024 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/20</span><a class="archive-post-title" href= "/1024/04/20/hello-world/" >hello world</a>
+        </li>
+    
+    </div>
+  </div>
+        <div class="sidebar-panel-tags">
+    <div class="sidebar-tags-name">
+    
+        <span class="sidebar-tag-name" data-tags="excel"><span class="iconfont-archer">&#xe606;</span>excel</span>
+    
+        <span class="sidebar-tag-name" data-tags="poi"><span class="iconfont-archer">&#xe606;</span>poi</span>
+    
+        <span class="sidebar-tag-name" data-tags="transaction"><span class="iconfont-archer">&#xe606;</span>transaction</span>
+    
+        <span class="sidebar-tag-name" data-tags="acid"><span class="iconfont-archer">&#xe606;</span>acid</span>
+    
+        <span class="sidebar-tag-name" data-tags="database"><span class="iconfont-archer">&#xe606;</span>database</span>
+    
+        <span class="sidebar-tag-name" data-tags="mysql"><span class="iconfont-archer">&#xe606;</span>mysql</span>
+    
+        <span class="sidebar-tag-name" data-tags="oracle"><span class="iconfont-archer">&#xe606;</span>oracle</span>
+    
+        <span class="sidebar-tag-name" data-tags="isolation level"><span class="iconfont-archer">&#xe606;</span>isolation level</span>
+    
+        <span class="sidebar-tag-name" data-tags="Pessimistic Lock"><span class="iconfont-archer">&#xe606;</span>Pessimistic Lock</span>
+    
+        <span class="sidebar-tag-name" data-tags="Optimistic Lock"><span class="iconfont-archer">&#xe606;</span>Optimistic Lock</span>
+    
+        <span class="sidebar-tag-name" data-tags="jdbc"><span class="iconfont-archer">&#xe606;</span>jdbc</span>
+    
+        <span class="sidebar-tag-name" data-tags="ajax"><span class="iconfont-archer">&#xe606;</span>ajax</span>
+    
+        <span class="sidebar-tag-name" data-tags="jquery"><span class="iconfont-archer">&#xe606;</span>jquery</span>
+    
+        <span class="sidebar-tag-name" data-tags="angular"><span class="iconfont-archer">&#xe606;</span>angular</span>
+    
+        <span class="sidebar-tag-name" data-tags="js"><span class="iconfont-archer">&#xe606;</span>js</span>
+    
+        <span class="sidebar-tag-name" data-tags="spring"><span class="iconfont-archer">&#xe606;</span>spring</span>
+    
+        <span class="sidebar-tag-name" data-tags="mybatis"><span class="iconfont-archer">&#xe606;</span>mybatis</span>
+    
+        <span class="sidebar-tag-name" data-tags="primarykey"><span class="iconfont-archer">&#xe606;</span>primarykey</span>
+    
+        <span class="sidebar-tag-name" data-tags="problem"><span class="iconfont-archer">&#xe606;</span>problem</span>
+    
+        <span class="sidebar-tag-name" data-tags="闲扯"><span class="iconfont-archer">&#xe606;</span>闲扯</span>
+    
+    </div>
+    <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
+    <div class="tag-load-fail" style="display: none; color: #ccc; font-size: 0.6rem;">
+    缺失模块。<br/>
+    1、请确保node版本大于6.2<br/>
+    2、在博客根目录（注意不是archer根目录）执行以下命令：<br/>
+    <span style="color: #f75357; font-size: 1rem; line-height: 2rem;">npm i hexo-generator-json-content --save</span><br/>
+    3、在根目录_config.yml里添加配置：
+    <pre style="color: #787878; font-size: 0.6rem;">
+jsonContent:
+  meta: false
+  pages: false
+  posts:
+    title: true
+    date: true
+    path: true
+    text: false
+    raw: false
+    content: false
+    slug: false
+    updated: false
+    comments: false
+    link: false
+    permalink: false
+    excerpt: false
+    categories: true
+    tags: true</pre>
+    </div> 
+    <div class="sidebar-tags-list"></div>
+</div>
+        <div class="sidebar-panel-categories">
+    <div class="sidebar-categories-name">
+    
+    </div>
+    <div class="iconfont-archer sidebar-categories-empty">&#xe678;</div>
+    <div class="sidebar-categories-list"></div>
+</div>
+    </div>
+</div> 
+    <script>
+    var siteMeta = {
+        root: '/',
+        author: 'flyFish'
+    }
+</script>
+    <!-- busuanzi  -->
+    
+    <script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    
+    <!-- CNZZ  -->
+    
+    </div>
+    <!-- async load share.js -->
+    
+        <script src="/scripts/share.js" async></script>    
+    
+    </body>
+</html>
+
+
