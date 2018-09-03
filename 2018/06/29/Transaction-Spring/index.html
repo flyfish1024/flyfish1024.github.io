@@ -391,9 +391,32 @@ height:70vh;
 <td>PROPAGATION_REQUIRED</td>
 <td>表示当前方法必须运行在事务中。如果当前事务存在，方法将会在该事务中运行。否则，会启动一个新的事务</td>
 </tr>
+<tr>
+<td>PROPAGATION_SUPPORTS</td>
+<td>表示当前方法不需要事务上下文，但是如果存在当前事务的话，那么该方法会在这个事务中运行</td>
+</tr>
+<tr>
+<td>PROPAGATION_MANDATORY</td>
+<td>表示该方法必须在事务中运行，如果当前事务不存在，则会抛出一个异常</td>
+</tr>
+<tr>
+<td>PROPAGATION_REQUIRED_NEW</td>
+<td>表示当前方法必须运行在它自己的事务中。一个新的事务将被启动。如果存在当前事务，在该方法执行期间，当前事务会被挂起。如果使用JTATransactionManager的话，则需要访问TransactionManager</td>
+</tr>
+<tr>
+<td>PROPAGATION_NOT_SUPPORTED</td>
+<td>表示该方法不应该运行在事务中。如果存在当前事务，在该方法运行期间，当前事务将被挂起。如果使用JTATransactionManager的话，则需要访问TransactionManager</td>
+</tr>
+<tr>
+<td>PROPAGATION_NEVER</td>
+<td>表示当前方法不应该运行在事务上下文中。如果当前正有一个事务在运行，则会抛出异常</td>
+</tr>
+<tr>
+<td>PROPAGATION_NESTED</td>
+<td>表示如果当前已经存在一个事务，那么该方法将会在嵌套事务中运行。嵌套的事务可以独立于当前事务进行单独地提交或回滚。如果当前事务不存在，那么其行为与PROPAGATION_REQUIRED一样。注意各厂商对这种传播行为的支持是有所差异的。可以参考资源管理器的文档来确认它们是否支持嵌套事务</td>
+</tr>
 </tbody>
 </table>
-<p>PROPAGATION_SUPPORTS|表示当前方法不需要事务上下文，但是如果存在当前事务的话，那么该方法会在这个事务中运行|<br>|PROPAGATION_MANDATORY|表示该方法必须在事务中运行，如果当前事务不存在，则会抛出一个异常|<br>|PROPAGATION_REQUIRED_NEW|表示当前方法必须运行在它自己的事务中。一个新的事务将被启动。如果存在当前事务，在该方法执行期间，当前事务会被挂起。如果使用JTATransactionManager的话，则需要访问TransactionManager|<br>|PROPAGATION_NOT_SUPPORTED|表示该方法不应该运行在事务中。如果存在当前事务，在该方法运行期间，当前事务将被挂起。如果使用JTATransactionManager的话，则需要访问TransactionManager|<br>|PROPAGATION_NEVER|表示当前方法不应该运行在事务上下文中。如果当前正有一个事务在运行，则会抛出异常|<br>|PROPAGATION_NESTED|表示如果当前已经存在一个事务，那么该方法将会在嵌套事务中运行。嵌套的事务可以独立于当前事务进行单独地提交或回滚。如果当前事务不存在，那么其行为与PROPAGATION_REQUIRED一样。注意各厂商对这种传播行为的支持是有所差异的。可以参考资源管理器的文档来确认它们是否支持嵌套事务|</p>
 <p>（1）PROPAGATION_REQUIRED 如果存在一个事务，则支持当前事务。如果没有事务则开启一个新的事务。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//事务属性 PROPAGATION_REQUIRED</span></span><br><span class="line">methodA&#123;</span><br><span class="line">    ……</span><br><span class="line">    methodB();</span><br><span class="line">    ……</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//事务属性 PROPAGATION_REQUIRED</span></span><br><span class="line">methodB&#123;</span><br><span class="line">   ……</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -928,7 +951,26 @@ top:70vh;
     
     
     
-    <div class="total-archive"> Total : 14 </div>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <div class="total-archive"> Total : 17 </div>
     
     <div class="post-archive">
     
@@ -937,6 +979,21 @@ top:70vh;
     
     <div class="archive-year"> 2018 </div>
     <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/06</span><a class="archive-post-title" href= "/2018/09/06/Adapter-Pattern/" >(一)JAVA设计模式之策略模式-Aadpter Pattern</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/03</span><a class="archive-post-title" href= "/2018/09/03/problem-august/" >八月问题记录</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/24</span><a class="archive-post-title" href= "/2018/08/24/pay-wechat/" >微信支付总结</a>
+        </li>
     
     
         <li class="archive-post-item">
@@ -1022,6 +1079,10 @@ top:70vh;
         <div class="sidebar-panel-tags">
     <div class="sidebar-tags-name">
     
+        <span class="sidebar-tag-name" data-tags="Pattern"><span class="iconfont-archer">&#xe606;</span>Pattern</span>
+    
+        <span class="sidebar-tag-name" data-tags="Adapter Pattern"><span class="iconfont-archer">&#xe606;</span>Adapter Pattern</span>
+    
         <span class="sidebar-tag-name" data-tags="excel"><span class="iconfont-archer">&#xe606;</span>excel</span>
     
         <span class="sidebar-tag-name" data-tags="poi"><span class="iconfont-archer">&#xe606;</span>poi</span>
@@ -1030,19 +1091,21 @@ top:70vh;
     
         <span class="sidebar-tag-name" data-tags="acid"><span class="iconfont-archer">&#xe606;</span>acid</span>
     
-        <span class="sidebar-tag-name" data-tags="database"><span class="iconfont-archer">&#xe606;</span>database</span>
-    
-        <span class="sidebar-tag-name" data-tags="mysql"><span class="iconfont-archer">&#xe606;</span>mysql</span>
-    
-        <span class="sidebar-tag-name" data-tags="oracle"><span class="iconfont-archer">&#xe606;</span>oracle</span>
-    
         <span class="sidebar-tag-name" data-tags="isolation level"><span class="iconfont-archer">&#xe606;</span>isolation level</span>
     
         <span class="sidebar-tag-name" data-tags="Pessimistic Lock"><span class="iconfont-archer">&#xe606;</span>Pessimistic Lock</span>
     
         <span class="sidebar-tag-name" data-tags="Optimistic Lock"><span class="iconfont-archer">&#xe606;</span>Optimistic Lock</span>
     
+        <span class="sidebar-tag-name" data-tags="database"><span class="iconfont-archer">&#xe606;</span>database</span>
+    
+        <span class="sidebar-tag-name" data-tags="mysql"><span class="iconfont-archer">&#xe606;</span>mysql</span>
+    
+        <span class="sidebar-tag-name" data-tags="oracle"><span class="iconfont-archer">&#xe606;</span>oracle</span>
+    
         <span class="sidebar-tag-name" data-tags="jdbc"><span class="iconfont-archer">&#xe606;</span>jdbc</span>
+    
+        <span class="sidebar-tag-name" data-tags="spring"><span class="iconfont-archer">&#xe606;</span>spring</span>
     
         <span class="sidebar-tag-name" data-tags="ajax"><span class="iconfont-archer">&#xe606;</span>ajax</span>
     
@@ -1052,15 +1115,17 @@ top:70vh;
     
         <span class="sidebar-tag-name" data-tags="js"><span class="iconfont-archer">&#xe606;</span>js</span>
     
-        <span class="sidebar-tag-name" data-tags="spring"><span class="iconfont-archer">&#xe606;</span>spring</span>
+        <span class="sidebar-tag-name" data-tags="pay"><span class="iconfont-archer">&#xe606;</span>pay</span>
     
-        <span class="sidebar-tag-name" data-tags="mybatis"><span class="iconfont-archer">&#xe606;</span>mybatis</span>
-    
-        <span class="sidebar-tag-name" data-tags="primarykey"><span class="iconfont-archer">&#xe606;</span>primarykey</span>
+        <span class="sidebar-tag-name" data-tags="we chat"><span class="iconfont-archer">&#xe606;</span>we chat</span>
     
         <span class="sidebar-tag-name" data-tags="problem"><span class="iconfont-archer">&#xe606;</span>problem</span>
     
         <span class="sidebar-tag-name" data-tags="闲扯"><span class="iconfont-archer">&#xe606;</span>闲扯</span>
+    
+        <span class="sidebar-tag-name" data-tags="mybatis"><span class="iconfont-archer">&#xe606;</span>mybatis</span>
+    
+        <span class="sidebar-tag-name" data-tags="primarykey"><span class="iconfont-archer">&#xe606;</span>primarykey</span>
     
     </div>
     <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
