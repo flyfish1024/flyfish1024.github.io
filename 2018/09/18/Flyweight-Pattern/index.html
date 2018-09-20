@@ -1,0 +1,1261 @@
+<!DOCTYPE html>
+<html>
+    <!-- title -->
+
+
+
+
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" >
+    <meta name="description" content="爱生活，爱java">
+    <title>(五)JAVA设计模式之享元模式-Flyweight Pattern（转载） · flyFish</title>
+    <style type="text/css">
+    @font-face {
+        font-family: 'Oswald-Regular';
+        src: url("/font/Oswald-Regular.ttf");
+    }
+
+    body {
+        margin: 0;
+    }
+
+    header,
+    footer,
+    .back-top,
+    .sidebar,
+    .container,
+    .site-intro-meta,
+    .toc-wrapper {
+        display: none;
+    }
+
+    .site-intro {
+        position: relative;
+        z-index: 3;
+        width: 100%;
+        /* height: 50vh; */
+        overflow: hidden;
+    }
+
+    .site-intro-placeholder {
+        position: absolute;
+        z-index: -2;
+        top: 0;
+        left: 0;
+        width: calc(100% + 300px);
+        height: 100%;
+        background: repeating-linear-gradient(-45deg, #444 0, #444 80px, #333 80px, #333 160px);
+        background-position: center center;
+        transform: translate3d(-226px, 0, 0);
+        animation: gradient-move 2.5s ease-out 0s 1;
+    }
+
+    @keyframes gradient-move {
+        0% {
+            transform: translate3d(-226px, 0, 0);
+        }
+        100% {
+            transform: translate3d(0, 0, 0);
+        }
+    }
+
+</style>
+
+    <link rel="preload" href= /css/style.css?v=20180317 as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="stylesheet" type="text/css" href= /css/mobile.css?v=20180317 media="(max-width: 980px)"/>
+    
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        
+    <link rel="icon" href= /assets/favicon.ico>
+    <script>
+        (function (w) {
+            "use strict";
+            // rel=preload support test
+            if (!w.loadCSS) {
+                w.loadCSS = function () { };
+            }
+            // define on the loadCSS obj
+            var rp = loadCSS.relpreload = {};
+            // rel=preload feature support test
+            // runs once and returns a function for compat purposes
+            rp.support = (function () {
+                var ret;
+                try {
+                    ret = w.document.createElement("link").relList.supports("preload");
+                } catch (e) {
+                    ret = false;
+                }
+                return function () {
+                    return ret;
+                };
+            })();
+
+            // if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+            // then change that media back to its intended value on load
+            rp.bindMediaToggle = function (link) {
+                // remember existing media attr for ultimate state, or default to 'all'
+                var finalMedia = link.media || "all";
+
+                function enableStylesheet() {
+                    link.media = finalMedia;
+                }
+
+                // bind load handlers to enable media
+                if (link.addEventListener) {
+                    link.addEventListener("load", enableStylesheet);
+                } else if (link.attachEvent) {
+                    link.attachEvent("onload", enableStylesheet);
+                }
+
+                // Set rel and non-applicable media type to start an async request
+                // note: timeout allows this to happen async to let rendering continue in IE
+                setTimeout(function () {
+                    link.rel = "stylesheet";
+                    link.media = "only x";
+                });
+                // also enable media after 3 seconds,
+                // which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+                setTimeout(enableStylesheet, 3000);
+            };
+
+            // loop through link elements in DOM
+            rp.poly = function () {
+                // double check this to prevent external calls from running
+                if (rp.support()) {
+                    return;
+                }
+                var links = w.document.getElementsByTagName("link");
+                for (var i = 0; i < links.length; i++) {
+                    var link = links[i];
+                    // qualify links to those with rel=preload and as=style attrs
+                    if (link.rel === "preload" && link.getAttribute("as") === "style" && !link.getAttribute("data-loadcss")) {
+                        // prevent rerunning on link
+                        link.setAttribute("data-loadcss", true);
+                        // bind listeners to toggle media back
+                        rp.bindMediaToggle(link);
+                    }
+                }
+            };
+
+            // if unsupported, run the polyfill
+            if (!rp.support()) {
+                // run once at least
+                rp.poly();
+
+                // rerun poly on an interval until onload
+                var run = w.setInterval(rp.poly, 500);
+                if (w.addEventListener) {
+                    w.addEventListener("load", function () {
+                        rp.poly();
+                        w.clearInterval(run);
+                    });
+                } else if (w.attachEvent) {
+                    w.attachEvent("onload", function () {
+                        rp.poly();
+                        w.clearInterval(run);
+                    });
+                }
+            }
+            // commonjs
+            if (typeof exports !== "undefined") {
+                exports.loadCSS = loadCSS;
+            }
+            else {
+                w.loadCSS = loadCSS;
+            }
+        }(typeof global !== "undefined" ? global : this));
+    </script>
+    <script src="//cdn.staticfile.org/jquery/3.2.1/jquery.min.js" defer></script>
+    <script src="/scripts/main.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js" defer></script>
+    <!-- 百度统计  -->
+    
+    <!-- 谷歌统计  -->
+    
+</head>
+
+    
+        <body class="post-body">
+    
+    
+<header class="header">
+
+    <div class="read-progress"></div>
+    <div class="header-sidebar-menu">&#xe775;</div>
+    <!-- post页的toggle banner  -->
+    
+    <div class="banner">
+            <div class="blog-title">
+                <a href="/" >flyFish&#39;s recorder.</a>
+            </div>
+            <div class="post-title">
+                <a href="#" class="post-name">(五)JAVA设计模式之享元模式-Flyweight Pattern（转载）</a>
+            </div>
+    </div>
+    
+    <a class="home-link" href=/>flyFish's recorder.</a>
+</header>
+    <div class="wrapper">
+        <div class="site-intro" style=
+
+
+
+
+
+
+
+
+height:70vh;
+
+>
+    
+    <!-- 主页  -->
+    
+    
+    <!-- 404页  -->
+            
+    <div class="site-intro-img" style="background-image: url(/intro/flyweight_pattern.jpg)"></div>
+    <div class="site-intro-placeholder"></div>
+    <div class="site-intro-meta">
+        <!-- 标题  -->
+        <h1 class="intro-title">
+            <!-- 主页  -->
+            
+            (五)JAVA设计模式之享元模式-Flyweight Pattern（转载）
+            <!-- 404 -->
+            
+        </h1>
+        <!-- 副标题 -->
+        <p class="intro-subtitle">
+            <!-- 主页副标题  -->
+            
+            
+            <!-- 404 -->
+            
+        </p>
+        <!-- 文章页meta -->
+        
+            <!-- 文章页标签  -->
+            
+                <div class= post-intro-tags >
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "Pattern">Pattern</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "Flyweight Pattern">Flyweight Pattern</a>
+    
+</div>
+            
+            <div class="post-intro-meta">
+                <span class="post-intro-calander iconfont-archer">&#xe676;</span>
+                <span class="post-intro-time">2018/09/18</span>
+                
+                <span id="busuanzi_container_page_pv" class="busuanzi-pv">
+                    <span class="iconfont-archer">&#xe602;</span>
+                    <span id="busuanzi_value_page_pv"></span>
+                </span>
+                
+                <span class="shareWrapper">
+                    <span class="iconfont-archer shareIcon">&#xe71d;</span>
+                    <span class="shareText">Share</span>
+                    <ul class="shareList">
+                        <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                            <div class="share-qrcode"></div>
+                        </li>
+                        <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                        <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                        <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                        <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                    </ul>
+                </span>
+            </div>
+        
+    </div>
+</div>
+        <script>
+  // load webfont-loader async, and add callback function
+  function async(u, c) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+  
+  // get user agent
+  var browser = {
+    versions: function () {
+      var u = window.navigator.userAgent;
+      return {
+        userAgent: u,
+        trident: u.indexOf('Trident') > -1, //IE内核
+        presto: u.indexOf('Presto') > -1, //opera内核
+        webKit: u.indexOf('AppleWebKit') > -1, //苹果、谷歌内核
+        gecko: u.indexOf('Gecko') > -1 && u.indexOf('KHTML') == -1, //火狐内核
+        mobile: !!u.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
+        ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
+        android: u.indexOf('Android') > -1 || u.indexOf('Linux') > -1, //android终端或者uc浏览器
+        iPhone: u.indexOf('iPhone') > -1 || u.indexOf('Mac') > -1, //是否为iPhone或者安卓QQ浏览器
+        iPad: u.indexOf('iPad') > -1, //是否为iPad
+        webApp: u.indexOf('Safari') == -1, //是否为web应用程序，没有头部与底部
+        weixin: u.indexOf('MicroMessenger') == -1, //是否为微信浏览器
+        uc: u.indexOf('UCBrowser') > -1 //是否为android下的UC浏览器
+      };
+    }()
+  }
+  console.log("userAgent:" + browser.versions.userAgent);
+
+  // callback
+  function fontLoaded() {
+    console.log('font loaded');
+    if (document.getElementsByClassName('site-intro-meta')) {
+      document.getElementsByClassName('intro-title')[0].classList.add('intro-fade-in');
+      document.getElementsByClassName('intro-subtitle')[0].classList.add('intro-fade-in');
+      var postIntroTags = document.getElementsByClassName('post-intro-tags')[0],
+        postIntroMeat = document.getElementsByClassName('post-intro-meta')[0];
+      if (postIntroTags) {
+        postIntroTags.classList.add('post-fade-in');
+      }
+      if (postIntroMeat) {
+        postIntroMeat.classList.add('post-fade-in');
+      }
+    }
+  }
+
+  // UC不支持跨域，所以直接显示
+  function asyncCb(){
+    if (browser.versions.uc) {
+      console.log("UCBrowser");
+      fontLoaded();
+    } else {
+      WebFont.load({
+        custom: {
+          families: ['Oswald-Regular']
+        },
+        loading: function () {  //所有字体开始加载
+          // console.log('loading');
+        },
+        active: function () {  //所有字体已渲染
+          fontLoaded();
+        },
+        inactive: function () { //字体预加载失败，无效字体或浏览器不支持加载
+          console.log('inactive: timeout');
+          fontLoaded();
+        },
+        timeout: 5000 // Set the timeout to two seconds
+      });
+    }
+  }
+
+  async("https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js", asyncCb)
+</script>        
+        <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
+        <div class="container container-unloaded">
+            <main class="main post-page">
+    <article class="article-entry">
+        <hr>
+<p>【作者：刘伟 <a href="http://blog.csdn.net/lovelion" target="_blank" rel="noopener">http://blog.csdn.net/lovelion</a>】</p>
+<p>当前咱们国家正在大力倡导构建和谐社会，其中一个很重要的组成部分就是建设资源节约型社会，“浪费可耻，节俭光荣”。在软件系统中，有时候也会存在资源浪费的情况，例如在计算机内存中存储了多个完全相同或者非常相似的对象，如果这些对象的数量太多将导致系统运行代价过高，内存属于计算机的“稀缺资源”，不应该用来“随便浪费”，那么是否存在一种技术可以用于节约内存使用空间，实现对这些相同或者相似对象的共享访问呢？答案是肯定，这种技术就是我们本章将要学习的享元模式。</p>
+<h2 id="围棋棋子的设计"><a href="#围棋棋子的设计" class="headerlink" title="围棋棋子的设计"></a>围棋棋子的设计</h2><p>Sunny软件公司欲开发一个围棋软件，其界面效果如图14-1所示：</p>
+<p><img src="http://my.csdn.net/uploads/201206/15/1339770306_7979.jpg" alt=""></p>
+<p><strong>图14-1 围棋软件界面效果图</strong></p>
+<p>Sunny软件公司开发人员通过对围棋软件进行分析，发现在围棋棋盘中包含大量的黑子和白子，它们的形状、大小都一模一样，只是出现的位置不同而已。如果将每一个棋子都作为一个独立的对象存储在内存中，将导致该围棋软件在运行时所需内存空间较大，<strong>如何降低运行代价、提高系统性能是Sunny公司开发人员需要解决的一个问题</strong>。为了解决这个问题，Sunny公司开发人员决定使用享元模式来设计该围棋软件的棋子对象，那么享元模式是如何实现节约内存进而提高系统性能的呢？别着急，下面让我们正式进入享元模式的学习。</p>
+<h2 id="享元模式概述"><a href="#享元模式概述" class="headerlink" title="享元模式概述"></a>享元模式概述</h2><p>当一个软件系统在运行时产生的对象数量太多，将导致运行代价过高，带来系统性能下降等问题。例如在一个文本字符串中存在很多重复的字符，如果每一个字符都用一个单独的对象来表示，将会占用较多的内存空间，那么我们如何去避免系统中出现大量相同或相似的对象，同时又不影响客户端程序通过面向对象的方式对这些对象进行操作？享元模式正为解决这一类问题而诞生。享元模式通过共享技术实现相同或相似对象的重用，<strong>在逻辑上每一个出现的字符都有一个对象与之对应，然而在物理上它们却共享同一个享元对象</strong>，这个对象可以出现在一个字符串的不同地方，相同的字符对象都指向同一个实例，在享元模式中，存储这些共享实例对象的地方称为<strong>享元池(Flyweight Pool)</strong>。我们可以针对每一个不同的字符创建一个享元对象，将其放在享元池中，需要时再从享元池取出。如图14-2所示：</p>
+<p><img src="http://my.csdn.net/uploads/201206/15/1339770315_9635.jpg" alt=""></p>
+<p><strong>图14-2 字符享元对象示意图</strong></p>
+<p>享元模式以共享的方式高效地支持大量细粒度对象的重用，享元对象能做到共享的关键是区分了<strong>内部状态(Intrinsic State)</strong>和<strong>外部状态(Extrinsic State)</strong>。下面将对享元的内部状态和外部状态进行简单的介绍：</p>
+<p>(1) <strong>内部状态是存储在享元对象内部并且不会随环境改变而改变的状态，内部状态可以共享</strong>。如字符的内容，不会随外部环境的变化而变化，无论在任何环境下字符“a”始终是“a”，都不会变成“b”。</p>
+<p>(2) <strong>外部状态是随环境改变而改变的、不可以共享的状态</strong>。享元对象的外部状态通常由客户端保存，并在享元对象被创建之后，需要使用的时候再传入到享元对象内部。一个外部状态与另一个外部状态之间是相互独立的。如字符的颜色，可以在不同的地方有不同的颜色，例如有的“a”是红色的，有的“a”是绿色的，字符的大小也是如此，有的“a”是五号字，有的“a”是四号字。而且字符的颜色和大小是两个独立的外部状态，它们可以独立变化，相互之间没有影响，客户端可以在使用时将外部状态注入享元对象中。</p>
+<p>正因为区分了内部状态和外部状态，我们可以<strong>将具有相同内部状态的对象存储在享元池中</strong>，享元池中的对象是可以实现共享的，需要的时候就将对象从享元池中取出，实现对象的复用。通过向取出的对象注入不同的外部状态，可以得到一系列相似的对象，而这些对象在内存中实际上只存储一份。</p>
+<h3 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h3><p>享元模式定义如下：</p>
+<p><strong>享元模式(Flyweight Pattern)：运用共享技术有效地支持大量细粒度对象的复用。系统只使用少量的对象，而这些对象都很相似，状态变化很小，可以实现对象的多次复用。由于享元模式要求能够共享的对象必须是细粒度对象，因此它又称为轻量级模式，它是一种对象结构型模式。</strong></p>
+<p>享元模式结构较为复杂，一般结合工厂模式一起使用，在它的结构图中包含了一个享元工厂类，其结构图如图14-3所示：</p>
+<p><img src="http://my.csdn.net/uploads/201206/15/1339770628_5970.jpg" alt=""></p>
+<p><strong>图14-3 享元模式结构图</strong></p>
+<p>在享元模式结构图中包含如下几个角色：</p>
+<p>● Flyweight（抽象享元类）：通常是一个接口或抽象类，在抽象享元类中声明了具体享元类公共的方法，这些方法可以向外界提供享元对象的内部数据（内部状态），同时也可以通过这些方法来设置外部数据（外部状态）。</p>
+<p>● ConcreteFlyweight（具体享元类）：它实现了抽象享元类，其实例称为享元对象；在具体享元类中为内部状态提供了存储空间。通常我们可以结合单例模式来设计具体享元类，为每一个具体享元类提供唯一的享元对象。</p>
+<p>● UnsharedConcreteFlyweight（非共享具体享元类）：并不是所有的抽象享元类的子类都需要被共享，不能被共享的子类可设计为非共享具体享元类；当需要一个非共享具体享元类的对象时可以直接通过实例化创建。</p>
+<p>● FlyweightFactory（享元工厂类）：享元工厂类用于创建并管理享元对象，它针对抽象享元类编程，将各种类型的具体享元对象存储在一个享元池中，享元池一般设计为一个存储“键值对”的集合（也可以是其他类型的集合），可以结合工厂模式进行设计；当用户请求一个具体享元对象时，享元工厂提供一个存储在享元池中已创建的实例或者创建一个新的实例（如果不存在的话），返回新创建的实例并将其存储在享元池中。</p>
+<p>在享元模式中引入了享元工厂类，享元工厂类的作用在于提供一个用于存储享元对象的享元池，当用户需要对象时，首先从享元池中获取，如果享元池中不存在，则创建一个新的享元对象返回给用户，并在享元池中保存该新增对象。典型的享元工厂类的代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">FlyweightFactory</span> </span>&#123;</span><br><span class="line">	<span class="comment">//定义一个HashMap用于存储享元对象，实现享元池</span></span><br><span class="line">	<span class="keyword">private</span> HashMap flyweights = newHashMap();</span><br><span class="line">	<span class="function"><span class="keyword">public</span> Flyweight <span class="title">getFlyweight</span><span class="params">(String key)</span></span>&#123;</span><br><span class="line">		<span class="comment">//如果对象存在，则直接从享元池获取</span></span><br><span class="line">		<span class="keyword">if</span>(flyweights.containsKey(key))&#123;</span><br><span class="line">			<span class="keyword">return</span>(Flyweight)flyweights.get(key);</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="comment">//如果对象不存在，先创建一个新的对象添加到享元池中，然后返回</span></span><br><span class="line">		<span class="keyword">else</span> &#123;</span><br><span class="line">			Flyweight fw = newConcreteFlyweight();</span><br><span class="line">			flyweights.put(key,fw);</span><br><span class="line">			<span class="keyword">return</span> fw;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>享元类的设计是享元模式的要点之一，在享元类中要将内部状态和外部状态分开处理，通常将内部状态作为享元类的成员变量，而外部状态通过注入的方式添加到享元类中。典型的享元类代码如下所示：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Flyweight</span> </span>&#123;</span><br><span class="line">	<span class="comment">//内部状态intrinsicState作为成员变量，同一个享元对象其内部状态是一致的</span></span><br><span class="line">	<span class="keyword">private</span> String intrinsicState;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="title">Flyweight</span><span class="params">(String intrinsicState)</span> </span>&#123;</span><br><span class="line">		<span class="keyword">this</span>.intrinsicState=intrinsicState;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">//外部状态extrinsicState在使用时由外部设置，不保存在享元对象中，即使是同一个对象，在每一次调用时也可以传入不同的外部状态</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">operation</span><span class="params">(String extrinsicState)</span> </span>&#123;</span><br><span class="line">		......</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="完整解决方案"><a href="#完整解决方案" class="headerlink" title="完整解决方案"></a>完整解决方案</h2><p>为了节约存储空间，提高系统性能，Sunny公司开发人员使用享元模式来设计围棋软件中的棋子，其基本结构如图14-4所示：</p>
+<p><strong><img src="http://my.csdn.net/uploads/201206/15/1339771744_6390.jpg" alt=""></strong></p>
+<p><strong>图14-4 围棋棋子结构图</strong></p>
+<p>在图14-4中，IgoChessman充当抽象享元类，BlackIgoChessman和WhiteIgoChessman充当具体享元类，IgoChessmanFactory充当享元工厂类。完整代码如下所示：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.*;  </span><br><span class="line">  </span><br><span class="line"><span class="comment">//围棋棋子类：抽象享元类  </span></span><br><span class="line"><span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">IgoChessman</span> </span>&#123;  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> String <span class="title">getColor</span><span class="params">()</span></span>;</span><br><span class="line">  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">display</span><span class="params">()</span> </span>&#123;  </span><br><span class="line">        System.out.println(<span class="string">"棋子颜色："</span> + <span class="keyword">this</span>.getColor());    </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;  </span><br><span class="line">  </span><br><span class="line"><span class="comment">//黑色棋子类：具体享元类  </span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BlackIgoChessman</span> <span class="keyword">extends</span> <span class="title">IgoChessman</span> </span>&#123;  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getColor</span><span class="params">()</span> </span>&#123;  </span><br><span class="line">        <span class="keyword">return</span> <span class="string">"黑色"</span>; </span><br><span class="line">    &#125;     </span><br><span class="line">&#125;  </span><br><span class="line">  </span><br><span class="line"><span class="comment">//白色棋子类：具体享元类  </span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">WhiteIgoChessman</span> <span class="keyword">extends</span> <span class="title">IgoChessman</span> </span>&#123;  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getColor</span><span class="params">()</span> </span>&#123;  </span><br><span class="line">        <span class="keyword">return</span> <span class="string">"白色"</span>;  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;  </span><br><span class="line">  </span><br><span class="line"><span class="comment">//围棋棋子工厂类：享元工厂类，使用单例模式进行设计  </span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">IgoChessmanFactory</span> </span>&#123;  </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> IgoChessmanFactory instance = <span class="keyword">new</span> IgoChessmanFactory();  </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Hashtable ht; <span class="comment">//使用Hashtable来存储享元对象，充当享元池  </span></span><br><span class="line">      </span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">IgoChessmanFactory</span><span class="params">()</span> </span>&#123;  </span><br><span class="line">        ht = <span class="keyword">new</span> Hashtable();  </span><br><span class="line">        IgoChessman black,white;  </span><br><span class="line">        black = <span class="keyword">new</span> BlackIgoChessman();  </span><br><span class="line">        ht.put(<span class="string">"b"</span>,black);  </span><br><span class="line">        white = <span class="keyword">new</span> WhiteIgoChessman();  </span><br><span class="line">        ht.put(<span class="string">"w"</span>,white);  </span><br><span class="line">    &#125;  </span><br><span class="line">      </span><br><span class="line">    <span class="comment">//返回享元工厂类的唯一实例  </span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> IgoChessmanFactory <span class="title">getInstance</span><span class="params">()</span> </span>&#123;  </span><br><span class="line">        <span class="keyword">return</span> instance;  </span><br><span class="line">    &#125;  </span><br><span class="line">      </span><br><span class="line">    <span class="comment">//通过key来获取存储在Hashtable中的享元对象  </span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> IgoChessman <span class="title">getIgoChessman</span><span class="params">(String color)</span> </span>&#123;  </span><br><span class="line">        <span class="keyword">return</span> (IgoChessman)ht.get(color);    </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>编写如下客户端测试代码：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Client</span> </span>&#123;  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String args[])</span> </span>&#123;  </span><br><span class="line">        IgoChessman black1,black2,black3,white1,white2;  </span><br><span class="line">        IgoChessmanFactory factory;  </span><br><span class="line">          </span><br><span class="line">        <span class="comment">//获取享元工厂对象  </span></span><br><span class="line">        factory = IgoChessmanFactory.getInstance();  </span><br><span class="line">  </span><br><span class="line">        <span class="comment">//通过享元工厂获取三颗黑子  </span></span><br><span class="line">        black1 = factory.getIgoChessman(<span class="string">"b"</span>);  </span><br><span class="line">        black2 = factory.getIgoChessman(<span class="string">"b"</span>);  </span><br><span class="line">        black3 = factory.getIgoChessman(<span class="string">"b"</span>);  </span><br><span class="line">        System.out.println(<span class="string">"判断两颗黑子是否相同："</span> + (black1==black2));  </span><br><span class="line">  </span><br><span class="line">        <span class="comment">//通过享元工厂获取两颗白子  </span></span><br><span class="line">        white1 = factory.getIgoChessman(<span class="string">"w"</span>);  </span><br><span class="line">        white2 = factory.getIgoChessman(<span class="string">"w"</span>);  </span><br><span class="line">        System.out.println(<span class="string">"判断两颗白子是否相同："</span> + (white1==white2));  </span><br><span class="line">  </span><br><span class="line">        <span class="comment">//显示棋子  </span></span><br><span class="line">        black1.display();  </span><br><span class="line">        black2.display();  </span><br><span class="line">        black3.display();  </span><br><span class="line">        white1.display();  </span><br><span class="line">        white2.display();  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>编译并运行程序，输出结果如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">判断两颗黑子是否相同：true</span><br><span class="line">判断两颗白子是否相同：true</span><br><span class="line">棋子颜色：黑色</span><br><span class="line">棋子颜色：黑色</span><br><span class="line">棋子颜色：黑色</span><br><span class="line">棋子颜色：白色</span><br><span class="line">棋子颜色：白色</span><br></pre></td></tr></table></figure></p>
+<p>从输出结果可以看出，虽然我们获取了三个黑子对象和两个白子对象，但是它们的内存地址相同，也就是说，它们实际上是同一个对象。在实现享元工厂类时我们使用了单例模式和简单工厂模式，确保了享元工厂对象的唯一性，并提供工厂方法来向客户端返回享元对象。</p>
+<h2 id="带外部状态的解决方案"><a href="#带外部状态的解决方案" class="headerlink" title="带外部状态的解决方案"></a>带外部状态的解决方案</h2><p>Sunny软件公司开发人员通过对围棋棋子进行进一步分析，发现虽然黑色棋子和白色棋子可以共享，但是它们将显示在棋盘的不同位置，如何让相同的黑子或者白子能够多次重复显示且位于一个棋盘的不同地方？解决方法就是将棋子的位置定义为棋子的一个外部状态，在需要时再进行设置。因此，我们在图14-4中增加了一个新的类Coordinates（坐标类），用于存储每一个棋子的位置，修改之后的结构图如图14-5所示：</p>
+<p><img src="http://my.csdn.net/uploads/201206/15/1339772313_4533.jpg" alt=""></p>
+<p><strong>图14-5 引入外部状态之后的围棋棋子结构图</strong></p>
+<p>在图14-5中，除了增加一个坐标类Coordinates以外，抽象享元类IgoChessman中的display()方法也将对应增加一个Coordinates类型的参数，用于在显示棋子时指定其坐标，Coordinates类和修改之后的IgoChessman类的代码如下所示：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Coordinates</span> </span>&#123;  </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> x;  </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> y;  </span><br><span class="line">      </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Coordinates</span><span class="params">(<span class="keyword">int</span> x,<span class="keyword">int</span> y)</span> </span>&#123;  </span><br><span class="line">        <span class="keyword">this</span>.x = x;  </span><br><span class="line">        <span class="keyword">this</span>.y = y;  </span><br><span class="line">    &#125;  </span><br><span class="line">      </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getX</span><span class="params">()</span> </span>&#123;  </span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.x;  </span><br><span class="line">    &#125;  </span><br><span class="line">      </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setX</span><span class="params">(<span class="keyword">int</span> x)</span> </span>&#123;  </span><br><span class="line">        <span class="keyword">this</span>.x = x;  </span><br><span class="line">    &#125;  </span><br><span class="line">      </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getY</span><span class="params">()</span> </span>&#123;  </span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.y;  </span><br><span class="line">    &#125;  </span><br><span class="line">      </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setY</span><span class="params">(<span class="keyword">int</span> y)</span> </span>&#123;  </span><br><span class="line">        <span class="keyword">this</span>.y = y;  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;   </span><br><span class="line">  </span><br><span class="line"><span class="comment">//围棋棋子类：抽象享元类  </span></span><br><span class="line"><span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">IgoChessman</span> </span>&#123;  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> String <span class="title">getColor</span><span class="params">()</span></span>;  </span><br><span class="line">      </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">display</span><span class="params">(Coordinates coord)</span></span>&#123;  </span><br><span class="line">        System.out.println(<span class="string">"棋子颜色："</span> + <span class="keyword">this</span>.getColor() + <span class="string">"，棋子位置："</span> + coord.getX() + <span class="string">"，"</span> + coord.getY() );    </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>客户端测试代码修改如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Client</span> </span>&#123;  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String args[])</span> </span>&#123;  </span><br><span class="line">        IgoChessman black1,black2,black3,white1,white2;  </span><br><span class="line">        IgoChessmanFactory factory;  </span><br><span class="line">          </span><br><span class="line">        <span class="comment">//获取享元工厂对象  </span></span><br><span class="line">        factory = IgoChessmanFactory.getInstance();  </span><br><span class="line">  </span><br><span class="line">        <span class="comment">//通过享元工厂获取三颗黑子  </span></span><br><span class="line">        black1 = factory.getIgoChessman(<span class="string">"b"</span>);  </span><br><span class="line">        black2 = factory.getIgoChessman(<span class="string">"b"</span>);  </span><br><span class="line">        black3 = factory.getIgoChessman(<span class="string">"b"</span>);  </span><br><span class="line">        System.out.println(<span class="string">"判断两颗黑子是否相同："</span> + (black1==black2));  </span><br><span class="line">  </span><br><span class="line">        <span class="comment">//通过享元工厂获取两颗白子  </span></span><br><span class="line">        white1 = factory.getIgoChessman(<span class="string">"w"</span>);  </span><br><span class="line">        white2 = factory.getIgoChessman(<span class="string">"w"</span>);  </span><br><span class="line">        System.out.println(<span class="string">"判断两颗白子是否相同："</span> + (white1==white2));  </span><br><span class="line">  </span><br><span class="line">        <span class="comment">//显示棋子，同时设置棋子的坐标位置  </span></span><br><span class="line">        black1.display(<span class="keyword">new</span> Coordinates(<span class="number">1</span>,<span class="number">2</span>));  </span><br><span class="line">        black2.display(<span class="keyword">new</span> Coordinates(<span class="number">3</span>,<span class="number">4</span>));  </span><br><span class="line">        black3.display(<span class="keyword">new</span> Coordinates(<span class="number">1</span>,<span class="number">3</span>));  </span><br><span class="line">        white1.display(<span class="keyword">new</span> Coordinates(<span class="number">2</span>,<span class="number">5</span>));  </span><br><span class="line">        white2.display(<span class="keyword">new</span> Coordinates(<span class="number">2</span>,<span class="number">4</span>));  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>编译并运行程序，输出结果如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">判断两颗黑子是否相同：true</span><br><span class="line">判断两颗白子是否相同：true</span><br><span class="line">棋子颜色：黑色，棋子位置：1，2</span><br><span class="line">棋子颜色：黑色，棋子位置：3，4</span><br><span class="line">棋子颜色：黑色，棋子位置：1，3</span><br><span class="line">棋子颜色：白色，棋子位置：2，5</span><br><span class="line">棋子颜色：白色，棋子位置：2，4</span><br></pre></td></tr></table></figure></p>
+<p>从输出结果可以看到，在每次调用display()方法时，都设置了不同的外部状态——坐标值，因此相同的棋子对象虽然具有相同的颜色，但是它们的坐标值不同，将显示在棋盘的不同位置。</p>
+
+    </article>
+    <!-- 前后页  -->
+    <ul class="post-paginator">
+        <li class="next">
+            
+                <div class="nextSlogan">Next Post</div>
+                <a href= "/2018/09/18/Decorator-Pattern/" title= (六)JAVA设计模式之装饰模式-Decorator Pattern（转载） >
+                    <div class="nextTitle">(六)JAVA设计模式之装饰模式-Decorator Pattern（转载）</div>
+                </a>
+            
+        </li>
+        <li class="previous">
+            
+                <div class="prevSlogan">Previous Post</div>
+                <a href= "/2018/09/11/Bridge-Pattern/" title= (四)JAVA设计模式之桥接模式-Bridge Pattern（转载） >
+                    <div class="prevTitle">(四)JAVA设计模式之桥接模式-Bridge Pattern（转载）</div>
+                </a>
+            
+        </li>
+    </ul>
+    <!-- 评论插件 -->
+    <!-- 来必力City版安装代码 -->
+
+<!-- City版安装代码已完成 -->
+    
+    
+    <!--PC版-->
+
+    <!--PC版-->
+
+
+    
+    <!-- 评论 -->
+</main>
+            <!-- profile -->
+            
+        </div>
+        <footer class="footer footer-unloaded">
+    <!-- social  -->
+    
+    <div class="social">
+        
+    
+        
+            
+                <a href="mailto:463647828@qq.com" class="iconfont-archer email" title=email ></a>
+            
+        
+    
+        
+            
+                <a href="https://github.com/flyfish1024" class="iconfont-archer github" target="_blank" title=github></a>
+            
+        
+    
+        
+            
+                <span class="iconfont-archer wechat" title=wechat>
+                  
+                  <img class="profile-qr" src="/assets/wechat.jpg" />
+                </span>
+            
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+    </div>
+    
+    <!-- powered by Hexo  -->
+    <div class="copyright">
+        <span id="hexo-power">Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span><span class="iconfont-archer power">&#xe635;</span><span id="theme-info">theme <a href="https://github.com/fi3ework/hexo-theme-archer" target="_blank">Archer</a></span>
+    </div>
+    <!-- 不蒜子  -->
+    
+    <div class="busuanzi-container">
+        <span id="busuanzi_container_site_pv">PV: <span id="busuanzi_value_site_pv"></span>
+        </span>
+    </div>
+    
+</footer>
+    </div>
+    <!-- toc -->
+    
+    <div class="toc-wrapper" style=
+    
+
+
+
+
+
+
+
+top:70vh;
+
+    >
+        <div class="toc-catalog">
+            <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+        </div>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#围棋棋子的设计"><span class="toc-number">1.</span> <span class="toc-text">围棋棋子的设计</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#享元模式概述"><span class="toc-number">2.</span> <span class="toc-text">享元模式概述</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#定义"><span class="toc-number">2.1.</span> <span class="toc-text">定义</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#完整解决方案"><span class="toc-number">3.</span> <span class="toc-text">完整解决方案</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#带外部状态的解决方案"><span class="toc-number">4.</span> <span class="toc-text">带外部状态的解决方案</span></a></li></ol>
+    </div>
+    
+    <div class="back-top iconfont-archer">&#xe639;</div>
+    <div class="sidebar sidebar-hide">
+    <ul class="sidebar-tabs sidebar-tabs-active-0">
+        <li class="sidebar-tab-archives"><span class="iconfont-archer">&#xe67d;</span><span class="tab-name">Archive</span></li>
+        <li class="sidebar-tab-tags"><span class="iconfont-archer">&#xe61b;</span><span class="tab-name">Tag</span></li>
+        <li class="sidebar-tab-categories"><span class="iconfont-archer">&#xe666;</span><span class="tab-name">Cate</span></li>
+    </ul>
+    <div class="sidebar-content sidebar-content-show-archive">
+          <div class="sidebar-panel-archives">
+    <!-- 在ejs中将archive按照时间排序 -->
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <div class="total-archive"> Total : 31 </div>
+    
+    <div class="post-archive">
+    
+    
+    
+    
+    <div class="archive-year"> 2018 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/18</span><a class="archive-post-title" href= "/2018/09/18/Decorator-Pattern/" >(六)JAVA设计模式之装饰模式-Decorator Pattern（转载）</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/18</span><a class="archive-post-title" href= "/2018/09/18/Flyweight-Pattern/" >(五)JAVA设计模式之享元模式-Flyweight Pattern（转载）</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/18</span><a class="archive-post-title" href= "/2018/09/18/Proxy-Pattern/" >(七)JAVA设计模式之代理模式-Proxy Pattern（转载）</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/11</span><a class="archive-post-title" href= "/2018/09/11/Bridge-Pattern/" >(四)JAVA设计模式之桥接模式-Bridge Pattern（转载）</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/08</span><a class="archive-post-title" href= "/2018/09/08/Composite-Pattern/" >(三)JAVA设计模式之组合模式-Composite Pattern（转载）</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/07</span><a class="archive-post-title" href= "/2018/09/07/Facade-Pattern/" >(二)JAVA设计模式之外观模式-Facade Pattern</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/06</span><a class="archive-post-title" href= "/2018/09/06/Adapter-Pattern/" >(一)JAVA设计模式之适配器模式-Aadpter Pattern</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/04</span><a class="archive-post-title" href= "/2018/09/04/Law-of-Demeter 1/" >(转)设计模式原则七：迪米特法则</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/04</span><a class="archive-post-title" href= "/2018/09/04/Open-Closed-Principle 1/" >(转)设计模式原则二：开闭原则</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/04</span><a class="archive-post-title" href= "/2018/09/04/Interface-Segregation-Principle 1/" >(转)设计模式原则五：接口隔离原则</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/04</span><a class="archive-post-title" href= "/2018/09/04/Composite-Reuse-Principle/" >(转)设计模式原则六：合成复用原则</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/04</span><a class="archive-post-title" href= "/2018/09/04/Dependence-Inversion-Principle/" >(转)设计模式原则四：依赖倒转原则</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/04</span><a class="archive-post-title" href= "/2018/09/04/Single-Responsibility-Principle 1/" >(转)设计模式原则一：单一职责原则</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/04</span><a class="archive-post-title" href= "/2018/09/04/Liskov-Substitution-Principle 1/" >(转)设计模式原则三：里氏代换原则</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/03</span><a class="archive-post-title" href= "/2018/09/03/problem-august/" >八月问题记录</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/03</span><a class="archive-post-title" href= "/2018/09/03/Pattern-Intro 1/" >(零)JAVA设计模式简介</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/24</span><a class="archive-post-title" href= "/2018/08/24/pay-wechat/" >微信支付总结</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/06</span><a class="archive-post-title" href= "/2018/08/06/myBatis-getId/" >MyBatis  insert时获取自增主键</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/02</span><a class="archive-post-title" href= "/2018/08/02/problem-july/" >七月问题记录</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/09</span><a class="archive-post-title" href= "/2018/07/09/Plug-poi-excel/" >Excel导出，导入（POI）</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/02</span><a class="archive-post-title" href= "/2018/07/02/problem-june/" >六月问题记录</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/29</span><a class="archive-post-title" href= "/2018/06/29/Transaction-Spring/" >Spring的事务控制</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/27</span><a class="archive-post-title" href= "/2018/06/27/Transaction-Jdbc/" >JDBC的事务控制</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/25</span><a class="archive-post-title" href= "/2018/06/25/Transaction-Isolation Level/" >事务隔离级别</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/24</span><a class="archive-post-title" href= "/2018/06/24/Transaction-Database/" >数据库的事务控制</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/21</span><a class="archive-post-title" href= "/2018/06/21/Transaction-Concept/" >事务概念（ACID）</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/01</span><a class="archive-post-title" href= "/2018/06/01/problem-may/" >五月问题记录</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">05/30</span><a class="archive-post-title" href= "/2018/05/30/ajax/" >Ajax 使用总结</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">05/06</span><a class="archive-post-title" href= "/2018/05/06/ui-tree/" >Angular ui-tree 使用心得</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/24</span><a class="archive-post-title" href= "/2018/04/24/自序/" >自序</a>
+        </li>
+    
+    
+    
+    
+    
+        </ul>
+    
+    <div class="archive-year"> 1024 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/20</span><a class="archive-post-title" href= "/1024/04/20/hello-world/" >hello world</a>
+        </li>
+    
+    </div>
+  </div>
+        <div class="sidebar-panel-tags">
+    <div class="sidebar-tags-name">
+    
+        <span class="sidebar-tag-name" data-tags="Pattern"><span class="iconfont-archer">&#xe606;</span>Pattern</span>
+    
+        <span class="sidebar-tag-name" data-tags="Adapter Pattern"><span class="iconfont-archer">&#xe606;</span>Adapter Pattern</span>
+    
+        <span class="sidebar-tag-name" data-tags="Bridge Pattern"><span class="iconfont-archer">&#xe606;</span>Bridge Pattern</span>
+    
+        <span class="sidebar-tag-name" data-tags="Composite Pattern"><span class="iconfont-archer">&#xe606;</span>Composite Pattern</span>
+    
+        <span class="sidebar-tag-name" data-tags="Principle"><span class="iconfont-archer">&#xe606;</span>Principle</span>
+    
+        <span class="sidebar-tag-name" data-tags="Facade Pattern"><span class="iconfont-archer">&#xe606;</span>Facade Pattern</span>
+    
+        <span class="sidebar-tag-name" data-tags="transaction"><span class="iconfont-archer">&#xe606;</span>transaction</span>
+    
+        <span class="sidebar-tag-name" data-tags="jdbc"><span class="iconfont-archer">&#xe606;</span>jdbc</span>
+    
+        <span class="sidebar-tag-name" data-tags="mysql"><span class="iconfont-archer">&#xe606;</span>mysql</span>
+    
+        <span class="sidebar-tag-name" data-tags="oracle"><span class="iconfont-archer">&#xe606;</span>oracle</span>
+    
+        <span class="sidebar-tag-name" data-tags="excel"><span class="iconfont-archer">&#xe606;</span>excel</span>
+    
+        <span class="sidebar-tag-name" data-tags="poi"><span class="iconfont-archer">&#xe606;</span>poi</span>
+    
+        <span class="sidebar-tag-name" data-tags="acid"><span class="iconfont-archer">&#xe606;</span>acid</span>
+    
+        <span class="sidebar-tag-name" data-tags="isolation level"><span class="iconfont-archer">&#xe606;</span>isolation level</span>
+    
+        <span class="sidebar-tag-name" data-tags="Pessimistic Lock"><span class="iconfont-archer">&#xe606;</span>Pessimistic Lock</span>
+    
+        <span class="sidebar-tag-name" data-tags="Optimistic Lock"><span class="iconfont-archer">&#xe606;</span>Optimistic Lock</span>
+    
+        <span class="sidebar-tag-name" data-tags="ajax"><span class="iconfont-archer">&#xe606;</span>ajax</span>
+    
+        <span class="sidebar-tag-name" data-tags="jquery"><span class="iconfont-archer">&#xe606;</span>jquery</span>
+    
+        <span class="sidebar-tag-name" data-tags="angular"><span class="iconfont-archer">&#xe606;</span>angular</span>
+    
+        <span class="sidebar-tag-name" data-tags="js"><span class="iconfont-archer">&#xe606;</span>js</span>
+    
+        <span class="sidebar-tag-name" data-tags="mybatis"><span class="iconfont-archer">&#xe606;</span>mybatis</span>
+    
+        <span class="sidebar-tag-name" data-tags="primarykey"><span class="iconfont-archer">&#xe606;</span>primarykey</span>
+    
+        <span class="sidebar-tag-name" data-tags="database"><span class="iconfont-archer">&#xe606;</span>database</span>
+    
+        <span class="sidebar-tag-name" data-tags="pay"><span class="iconfont-archer">&#xe606;</span>pay</span>
+    
+        <span class="sidebar-tag-name" data-tags="we chat"><span class="iconfont-archer">&#xe606;</span>we chat</span>
+    
+        <span class="sidebar-tag-name" data-tags="spring"><span class="iconfont-archer">&#xe606;</span>spring</span>
+    
+        <span class="sidebar-tag-name" data-tags="problem"><span class="iconfont-archer">&#xe606;</span>problem</span>
+    
+        <span class="sidebar-tag-name" data-tags="闲扯"><span class="iconfont-archer">&#xe606;</span>闲扯</span>
+    
+        <span class="sidebar-tag-name" data-tags="Decorator Pattern"><span class="iconfont-archer">&#xe606;</span>Decorator Pattern</span>
+    
+        <span class="sidebar-tag-name" data-tags="Flyweight Pattern"><span class="iconfont-archer">&#xe606;</span>Flyweight Pattern</span>
+    
+        <span class="sidebar-tag-name" data-tags="Proxy Pattern"><span class="iconfont-archer">&#xe606;</span>Proxy Pattern</span>
+    
+    </div>
+    <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
+    <div class="tag-load-fail" style="display: none; color: #ccc; font-size: 0.6rem;">
+    缺失模块。<br/>
+    1、请确保node版本大于6.2<br/>
+    2、在博客根目录（注意不是archer根目录）执行以下命令：<br/>
+    <span style="color: #f75357; font-size: 1rem; line-height: 2rem;">npm i hexo-generator-json-content --save</span><br/>
+    3、在根目录_config.yml里添加配置：
+    <pre style="color: #787878; font-size: 0.6rem;">
+jsonContent:
+  meta: false
+  pages: false
+  posts:
+    title: true
+    date: true
+    path: true
+    text: false
+    raw: false
+    content: false
+    slug: false
+    updated: false
+    comments: false
+    link: false
+    permalink: false
+    excerpt: false
+    categories: true
+    tags: true</pre>
+    </div> 
+    <div class="sidebar-tags-list"></div>
+</div>
+        <div class="sidebar-panel-categories">
+    <div class="sidebar-categories-name">
+    
+    </div>
+    <div class="iconfont-archer sidebar-categories-empty">&#xe678;</div>
+    <div class="sidebar-categories-list"></div>
+</div>
+    </div>
+</div> 
+    <script>
+    var siteMeta = {
+        root: '/',
+        author: 'flyFish'
+    }
+</script>
+    <!-- busuanzi  -->
+    
+    <script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    
+    <!-- CNZZ  -->
+    
+    </div>
+    <!-- async load share.js -->
+    
+        <script src="/scripts/share.js" async></script>    
+    
+    </body>
+</html>
+
+
