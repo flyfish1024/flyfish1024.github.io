@@ -10,7 +10,7 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" >
     <meta name="description" content="爱生活，爱java">
-    <title>flyFish</title>
+    <title>MVVM模式 · flyFish</title>
     <style type="text/css">
     @font-face {
         font-family: 'Oswald-Regular';
@@ -65,6 +65,8 @@
 
     <link rel="preload" href= /css/style.css?v=20180317 as="style" onload="this.onload=null;this.rel='stylesheet'">
     <link rel="stylesheet" type="text/css" href= /css/mobile.css?v=20180317 media="(max-width: 980px)"/>
+    
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
         
     <link rel="icon" href= /assets/favicon.ico>
     <script>
@@ -175,14 +177,23 @@
 </head>
 
     
-        <body class="home-body">
+        <body class="post-body">
     
     
-<header class="header index-header">
+<header class="header">
 
     <div class="read-progress"></div>
     <div class="header-sidebar-menu">&#xe775;</div>
     <!-- post页的toggle banner  -->
+    
+    <div class="banner">
+            <div class="blog-title">
+                <a href="/" >flyFish&#39;s recorder.</a>
+            </div>
+            <div class="post-title">
+                <a href="#" class="post-name">MVVM模式</a>
+            </div>
+    </div>
     
     <a class="home-link" href=/>flyFish's recorder.</a>
 </header>
@@ -196,24 +207,24 @@
 
 
 
-height:65vh;
+height:70vh;
 
 >
     
     <!-- 主页  -->
     
     
-    <!-- 文章页  -->
+    <!-- 404页  -->
             
-    <div class="site-intro-img" style="background-image: url(/intro/index-bg2.png)"></div>
+    <div class="site-intro-img" style="background-image: url(/intro/mvvm.jpg)"></div>
     <div class="site-intro-placeholder"></div>
     <div class="site-intro-meta">
         <!-- 标题  -->
         <h1 class="intro-title">
             <!-- 主页  -->
             
-            flyFish's recorder.
-            <!-- 文章页  -->
+            MVVM模式
+            <!-- 404 -->
             
         </h1>
         <!-- 副标题 -->
@@ -221,12 +232,44 @@ height:65vh;
             <!-- 主页副标题  -->
             
             
-                happy~
-            
-            <!-- 文章页  -->
+            <!-- 404 -->
             
         </p>
         <!-- 文章页meta -->
+        
+            <!-- 文章页标签  -->
+            
+                <div class= post-intro-tags >
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "mvvm">mvvm</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "front end">front end</a>
+    
+</div>
+            
+            <div class="post-intro-meta">
+                <span class="post-intro-calander iconfont-archer">&#xe676;</span>
+                <span class="post-intro-time">2018/12/20</span>
+                
+                <span id="busuanzi_container_page_pv" class="busuanzi-pv">
+                    <span class="iconfont-archer">&#xe602;</span>
+                    <span id="busuanzi_value_page_pv"></span>
+                </span>
+                
+                <span class="shareWrapper">
+                    <span class="iconfont-archer shareIcon">&#xe71d;</span>
+                    <span class="shareText">Share</span>
+                    <ul class="shareList">
+                        <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                            <div class="share-qrcode"></div>
+                        </li>
+                        <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                        <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                        <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                        <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                    </ul>
+                </span>
+            </div>
         
     </div>
 </div>
@@ -310,371 +353,66 @@ height:65vh;
 </script>        
         <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
         <div class="container container-unloaded">
-            <main class="main index-page">
+            <main class="main post-page">
+    <article class="article-entry">
+        <hr>
+<h1 id="简言之"><a href="#简言之" class="headerlink" title="简言之"></a>简言之</h1><p>Model–View–ViewModel(MVVM) 是一个软件架构设计模式，由微软 WPF 和 Silverlight 的架构师 Ken Cooper 和 Ted Peters 开发，是一种简化用户界面的事件驱动编程方式。由 John Gossman（同样也是 WPF 和 Silverlight 的架构师）于2005年在他的博客上发表。</p>
+<p>MVVM 源自于经典的 Model–View–Controller（MVC）模式（期间还演化出了 Model-View-Presenter（MVP）模式，可忽略不计）。MVVM 的出现促进了 GUI 前端开发与后端业务逻辑的分离，极大地提高了前端开发效率。MVVM 的核心是 ViewModel 层，它就像是一个中转站（value converter），负责转换 Model 中的数据对象来让数据变得更容易管理和使用，该层向上与视图层进行双向数据绑定，向下与 Model 层通过接口请求进行数据交互，起呈上启下作用。如下图所示：</p>
+<p><img src="https://images2017.cnblogs.com/blog/882926/201711/882926-20171115175942921-775941263.png" alt=""></p>
+<p>MVVM 已经相当成熟了，主要运用但不仅仅在网络应用程序开发中。KnockoutJS 是最早实现 MVVM 模式的前端框架之一，当下流行的 MVVM 框架有 Vue，Angular 等。</p>
+<h1 id="组成部分"><a href="#组成部分" class="headerlink" title="组成部分"></a>组成部分</h1><p>简单画了一张图来说明 MVVM 的各个组成部分：</p>
+<p><img src="https://images2017.cnblogs.com/blog/882926/201711/882926-20171115175958671-1955710845.png" alt=""></p>
+<p>MVVM分层示意图</p>
+<p>分层设计一直是软件架构的主流设计思想之一，MVVM 也不例外。</p>
+<h2 id="View-层"><a href="#View-层" class="headerlink" title="View 层"></a>View 层</h2><p>View 是视图层，也就是用户界面。前端主要由 HTML 和 CSS 来构建，为了更方便地展现 ViewModel 或者 Model 层的数据，已经产生了各种各样的前后端模板语言，比如 FreeMarker、Marko、Pug、Jinja2等等，各大 MVVM 框架如 KnockoutJS，Vue，Angular 等也都有自己用来构建用户界面的内置模板语言。</p>
+<h2 id="Model-层"><a href="#Model-层" class="headerlink" title="Model 层"></a>Model 层</h2><p>Model 是指数据模型，泛指后端进行的各种业务逻辑处理和数据操控，主要围绕数据库系统展开。后端的处理通常会非常复杂：</p>
+<p><img src="https://images2017.cnblogs.com/blog/882926/201711/882926-20171115180046718-1139564648.png" alt=""></p>
+<p>前后端对比</p>
+<p>后端：我们这里的业务逻辑和数据处理会非常复杂！<br>前端：关我屁事！</p>
+<p>后端业务处理再复杂跟我们前端也没有半毛钱关系，只要后端保证对外接口足够简单就行了，我请求api，你把数据返出来，咱俩就这点关系，其他都扯淡。</p>
+<h2 id="ViewModel-层"><a href="#ViewModel-层" class="headerlink" title="ViewModel 层"></a>ViewModel 层</h2><p>ViewModel 是由前端开发人员组织生成和维护的视图数据层。在这一层，前端开发者对从后端获取的 Model 数据进行转换处理，做二次封装，以生成符合 View 层使用预期的视图数据模型。需要注意的是 ViewModel 所封装出来的数据模型包括视图的状态和行为两部分，而 Model 层的数据模型是只包含状态的，比如页面的这一块展示什么，那一块展示什么这些都属于视图状态（展示），而页面加载进来时发生什么，点击这一块发生什么，这一块滚动时发生什么这些都属于视图行为（交互），视图状态和行为都封装在了 ViewModel 里。这样的封装使得 ViewModel 可以完整地去描述 View 层。由于实现了双向绑定，ViewModel 的内容会实时展现在 View 层，这是激动人心的，因为前端开发者再也不必低效又麻烦地通过操纵 DOM 去更新视图，MVVM 框架已经把最脏最累的一块做好了，我们开发者只需要处理和维护 ViewModel，更新数据视图就会自动得到相应更新，真正实现数据驱动开发。看到了吧，View 层展现的不是 Model 层的数据，而是 ViewModel 的数据，由 ViewModel 负责与 Model 层交互，这就完全解耦了 View 层和 Model 层，这个解耦是至关重要的，它是前后端分离方案实施的重要一环。</p>
+<h1 id="没有什么是一个栗子不能解决的"><a href="#没有什么是一个栗子不能解决的" class="headerlink" title="没有什么是一个栗子不能解决的"></a>没有什么是一个栗子不能解决的</h1><p>扯了这么多，并没有什么卵用。千言万语不如一个栗子来的干脆，下面用一个 Vue 实例来说明 MVVM 的具体表现。</p>
+<p>Vue 的 View 模板：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;div id=&quot;app&quot;&gt;</span><br><span class="line">    &lt;p&gt;&#123;&#123;message&#125;&#125;&lt;/p&gt;</span><br><span class="line">    &lt;button v-on:click=&quot;showMessage()&quot;&gt;Click me&lt;/button&gt;</span><br><span class="line">&lt;/div&gt;</span><br></pre></td></tr></table></figure>
+<p>Vue 的 ViewModel 层（下面是伪代码）：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">var app = new Vue(&#123;</span><br><span class="line">    el: &apos;#app&apos;,</span><br><span class="line">    data: &#123;     // 用于描述视图状态（有基于 Model 层数据定义的，也有纯前端定义）</span><br><span class="line">        message: &apos;Hello Vue!&apos;,  // 纯前端定义</span><br><span class="line">        server: &#123;&#125;, // 存放基于 Model 层数据的二次封装数据</span><br><span class="line">    &#125;,</span><br><span class="line">    methods: &#123;  // 用于描述视图行为（完全前端定义）</span><br><span class="line">        showMessage()&#123;</span><br><span class="line">            let vm = this;</span><br><span class="line">            alert(vm.message);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    created()&#123;</span><br><span class="line">        let vm = this;</span><br><span class="line"></span><br><span class="line">        // Ajax 获取 Model 层的数据</span><br><span class="line">        ajax(&#123;</span><br><span class="line">            url: &apos;/your/server/data/api&apos;,</span><br><span class="line">            success(res)&#123;</span><br><span class="line">                // TODO 对获取到的 Model 数据进行转换处理，做二次封装</span><br><span class="line">                vm.server = res;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>服务端的 Model 层（省略业务逻辑处理，只描述对外接口）：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    &quot;url&quot;: &quot;/your/server/data/api&quot;,</span><br><span class="line">    &quot;res&quot;: &#123;</span><br><span class="line">        &quot;success&quot;: true,</span><br><span class="line">        &quot;name&quot;: &quot;IoveC&quot;,</span><br><span class="line">        &quot;domain&quot;: &quot;www.cnblogs.com&quot;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这就是完整的 MVVM 编程模式。</p>
+<p>代码执行之后双向绑定的效果如下:</p>
+<p><img src="https://images2017.cnblogs.com/blog/882926/201711/882926-20171115180107812-1002364123.gif" alt=""></p>
+<p>转载自<a href="https://www.cnblogs.com/iovec/p/7840228.html" target="_blank" rel="noopener">DOM哥-前后端分手大师–MVVM</a></p>
+
+    </article>
+    <!-- 前后页  -->
+    <ul class="post-paginator">
+        <li class="next">
+            
+        </li>
+        <li class="previous">
+            
+                <div class="prevSlogan">Previous Post</div>
+                <a href= "/2018/10/12/problem-september/" title= 九月问题记录 >
+                    <div class="prevTitle">九月问题记录</div>
+                </a>
+            
+        </li>
+    </ul>
+    <!-- 评论插件 -->
+    <!-- 来必力City版安装代码 -->
+
+<!-- City版安装代码已完成 -->
     
     
+    <!--PC版-->
+
+    <!--PC版-->
+
+
     
-        <article class="index-post">
-            <a class="abstract-title" href = "/2018/09/04/Composite-Reuse-Principle/" >
-                
-                    <span>(转)设计模式原则六：合成复用原则</span>
-            </a>
-            <div class="abstract-content">
-                尽量使用对象组合，而不是继承来达到复用的目的
-            </div>
-            <div class="abstract-post-meta">
-                <!-- date  -->
-                <div class="abstract-date">
-                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2018/09/04</span>
-                </div>
-                <!-- tags  -->
-                
-                <div class= abstract-tags >
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags = "Principle">Principle</a>
-    
-</div>
-                
-            </div>
-        </article>
-    
-    
-    
-        <article class="index-post">
-            <a class="abstract-title" href = "/2018/09/04/Interface-Segregation-Principle 1/" >
-                
-                    <span>(转)设计模式原则五：接口隔离原则</span>
-            </a>
-            <div class="abstract-content">
-                使用多个专门的接口，而不使用单一的总接口
-            </div>
-            <div class="abstract-post-meta">
-                <!-- date  -->
-                <div class="abstract-date">
-                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2018/09/04</span>
-                </div>
-                <!-- tags  -->
-                
-                <div class= abstract-tags >
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags = "Principle">Principle</a>
-    
-</div>
-                
-            </div>
-        </article>
-    
-    
-    
-        <article class="index-post">
-            <a class="abstract-title" href = "/2018/09/04/Dependence-Inversion-Principle/" >
-                
-                    <span>(转)设计模式原则四：依赖倒转原则</span>
-            </a>
-            <div class="abstract-content">
-                抽象不应该依赖于细节，细节应该依赖于抽象
-            </div>
-            <div class="abstract-post-meta">
-                <!-- date  -->
-                <div class="abstract-date">
-                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2018/09/04</span>
-                </div>
-                <!-- tags  -->
-                
-                <div class= abstract-tags >
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags = "Principle">Principle</a>
-    
-</div>
-                
-            </div>
-        </article>
-    
-    
-    
-        <article class="index-post">
-            <a class="abstract-title" href = "/2018/09/04/Liskov-Substitution-Principle 1/" >
-                
-                    <span>(转)设计模式原则三：里氏代换原则</span>
-            </a>
-            <div class="abstract-content">
-                所有引用基类对象的地方能够透明地使用其子类的对象
-            </div>
-            <div class="abstract-post-meta">
-                <!-- date  -->
-                <div class="abstract-date">
-                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2018/09/04</span>
-                </div>
-                <!-- tags  -->
-                
-                <div class= abstract-tags >
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags = "Principle">Principle</a>
-    
-</div>
-                
-            </div>
-        </article>
-    
-    
-    
-        <article class="index-post">
-            <a class="abstract-title" href = "/2018/09/04/Open-Closed-Principle 1/" >
-                
-                    <span>(转)设计模式原则二：开闭原则</span>
-            </a>
-            <div class="abstract-content">
-                软件实体应对扩展开放，而对修改关闭
-            </div>
-            <div class="abstract-post-meta">
-                <!-- date  -->
-                <div class="abstract-date">
-                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2018/09/04</span>
-                </div>
-                <!-- tags  -->
-                
-                <div class= abstract-tags >
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags = "Principle">Principle</a>
-    
-</div>
-                
-            </div>
-        </article>
-    
-    
-    
-        <article class="index-post">
-            <a class="abstract-title" href = "/2018/09/04/Single-Responsibility-Principle 1/" >
-                
-                    <span>(转)设计模式原则一：单一职责原则</span>
-            </a>
-            <div class="abstract-content">
-                一个类只负责一个功能领域中的相应职责
-            </div>
-            <div class="abstract-post-meta">
-                <!-- date  -->
-                <div class="abstract-date">
-                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2018/09/04</span>
-                </div>
-                <!-- tags  -->
-                
-                <div class= abstract-tags >
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags = "Principle">Principle</a>
-    
-</div>
-                
-            </div>
-        </article>
-    
-    
-    
-        <article class="index-post">
-            <a class="abstract-title" href = "/2018/09/03/problem-august/" >
-                
-                    <span>八月问题记录</span>
-            </a>
-            <div class="abstract-content">
-                每月解决的错误集锦（18年8月）
-            </div>
-            <div class="abstract-post-meta">
-                <!-- date  -->
-                <div class="abstract-date">
-                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2018/09/03</span>
-                </div>
-                <!-- tags  -->
-                
-                <div class= abstract-tags >
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags = "problem">problem</a>
-    
-</div>
-                
-            </div>
-        </article>
-    
-    
-    
-        <article class="index-post">
-            <a class="abstract-title" href = "/2018/09/03/Pattern-Intro 1/" >
-                
-                    <span>(零)JAVA设计模式简介</span>
-            </a>
-            <div class="abstract-content">
-                设计模式系列第零篇，介绍设计模式的概念，原则，分类。
-            </div>
-            <div class="abstract-post-meta">
-                <!-- date  -->
-                <div class="abstract-date">
-                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2018/09/03</span>
-                </div>
-                <!-- tags  -->
-                
-                <div class= abstract-tags >
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags = "Pattern">Pattern</a>
-    
-</div>
-                
-            </div>
-        </article>
-    
-    
-    
-        <article class="index-post">
-            <a class="abstract-title" href = "/2018/08/24/pay-wechat/" >
-                
-                    <span>微信支付总结</span>
-            </a>
-            <div class="abstract-content">
-                微信支付（H5、APP原生）
-            </div>
-            <div class="abstract-post-meta">
-                <!-- date  -->
-                <div class="abstract-date">
-                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2018/08/24</span>
-                </div>
-                <!-- tags  -->
-                
-                <div class= abstract-tags >
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags = "pay">pay</a>
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags = "we chat">we chat</a>
-    
-</div>
-                
-            </div>
-        </article>
-    
-    
-    
-        <article class="index-post">
-            <a class="abstract-title" href = "/2018/08/06/myBatis-getId/" >
-                
-                    <span>MyBatis  insert时获取自增主键</span>
-            </a>
-            <div class="abstract-content">
-                使用mybatis插入数据时，需要拿到新的条目的主键，这里整理下三种方式。
-            </div>
-            <div class="abstract-post-meta">
-                <!-- date  -->
-                <div class="abstract-date">
-                    <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2018/08/06</span>
-                </div>
-                <!-- tags  -->
-                
-                <div class= abstract-tags >
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags = "mybatis">mybatis</a>
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags = "primarykey">primarykey</a>
-    
-</div>
-                
-            </div>
-        </article>
-    
-    <!-- paginator  -->
-    
-    <nav class="page-nav">
-        <a class="extend prev" rel="prev" href="/">&#60; PREV</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/3/">NEXT &#62;</a>
-    </nav>
-    
+    <!-- 评论 -->
 </main>
             <!-- profile -->
-            
-            <div class="profile">
-    <img class="profile-avatar" src= /avatar/23.jpg >
-    <div class="profile-name">flyFish</div>
-    
-    <div class="profile-signature">
-        I feel that I am old, or I have never been young.
-    </div>
-    
-    
-    <div class="profile-social">
-        
-    
-        
-            
-                <a href="mailto:463647828@qq.com" class="iconfont-archer email" title=email ></a>
-            
-        
-    
-        
-            
-                <a href="https://github.com/flyfish1024" class="iconfont-archer github" target="_blank" title=github></a>
-            
-        
-    
-        
-            
-                <span class="iconfont-archer wechat" title=wechat>
-                  
-                  <img class="profile-qr" src="/assets/wechat.jpg" />
-                </span>
-            
-        
-    
-        
-    
-        
-    
-        
-    
-        
-    
-        
-    
-        
-    
-        
-    
-        
-    
-        
-    
-        
-    
-        
-    
-        
-    
-
-    </div>
-    
-    
-        <div class="friends">
-            <div>FRIENDS</div>
-            
-                
-                    <span>
-                        <a href= https://github.com/YandaZhao target="_black">yanDa</a>
-                    </span>
-                
-            
-                
-                    <span>
-                        <a href= https://github.com/805058027 target="_black">congJun</a>
-                    </span>
-                
-            
-                
-                    <span>
-                        <a href= https://github.com/lcj5353 target="_black">shaoJian</a>
-                    </span>
-                
-            
-        </div>
-    
-    
-        <div class="about-me">
-            <a href = "/about" >ABOUT ME</a>
-        </div>
-    
-</div>
             
         </div>
         <footer class="footer footer-unloaded">
@@ -745,6 +483,24 @@ height:65vh;
 </footer>
     </div>
     <!-- toc -->
+    
+    <div class="toc-wrapper" style=
+    
+
+
+
+
+
+
+
+top:70vh;
+
+    >
+        <div class="toc-catalog">
+            <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+        </div>
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#简言之"><span class="toc-number">1.</span> <span class="toc-text">简言之</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#组成部分"><span class="toc-number">2.</span> <span class="toc-text">组成部分</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#View-层"><span class="toc-number">2.1.</span> <span class="toc-text">View 层</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Model-层"><span class="toc-number">2.2.</span> <span class="toc-text">Model 层</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ViewModel-层"><span class="toc-number">2.3.</span> <span class="toc-text">ViewModel 层</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#没有什么是一个栗子不能解决的"><span class="toc-number">3.</span> <span class="toc-text">没有什么是一个栗子不能解决的</span></a></li></ol>
+    </div>
     
     <div class="back-top iconfont-archer">&#xe639;</div>
     <div class="sidebar sidebar-hide">
@@ -1541,6 +1297,8 @@ jsonContent:
     
     </div>
     <!-- async load share.js -->
+    
+        <script src="/scripts/share.js" async></script>    
     
     </body>
 </html>
